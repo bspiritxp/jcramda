@@ -1,32 +1,37 @@
-from inspect import signature, Parameter, getfullargspec
+from inspect import signature, Parameter, getfullargspec, FullArgSpec, _empty
 from functools import wraps, partial
+from typing import Callable, List
 
-_ = Parameter.empty()
+_ = Parameter.empty
 
 
 def has_default_value(p: Parameter):
-    return p.default != Parameter.empty
+    return p.default is not Parameter.empty
 
 
-def count_holder(fn):
+def _count_holder(fn):
     if isinstance(fn, partial) and len(fn.args) > 0:
-        return len(list(filter(lambda x: x == _, fn.args)))
+        return len(list(filter(lambda x: x is _, fn.args)))
     return 0
 
 
-def update_args(fn, args):
+def _count_args(spec: FullArgSpec):
+    return len(spec.args) + len(spec.kwonlyargs)
+
+
+def update_args(fn, *args, **kws):
     arg_values = list(args)
     new_args = []
     func = fn
-    if count_holder(fn):
+    if _count_holder(fn):
         assert len(args), 'when _ in args, must pass a value to fill it'
-        for a in fn.args:
-            v = a
-            if v == _ and len(arg_values) > 0:
+        kws.update(fn.keywords)
+        for v in fn.args:
+            if v is _ and len(arg_values) > 0:
                 v = arg_values.pop(0)
             new_args.append(v)
-        func = partial(fn.func, *new_args, **fn.keywords)
-    return partial(func, *arg_values)
+        return partial(fn.func, *(new_args + arg_values), **kws)
+    return partial(func, *arg_values, **kws) if len(arg_values) > 0 or len(kws) > 0 else func
 
 
 def is_filled(fn, spec):
@@ -40,31 +45,36 @@ def is_filled(fn, spec):
             if key in spec.args:
                 filled_args += (func.keywords[key],)
         func = func.func
-    return [0, len(spec.args)][bool(spec.args)] == len(filled_args) and not count_holder(fn)
+    return [0, len(spec.args)][bool(spec.args)] == len(filled_args) and not _count_holder(fn)
 
 
-# def move_kw_to_pos(spec, args, kwargs):
-#     params = list(args)
-#     if spec.args:
-#         for index, key in enumerate(spec.args):
-#             if key in kwargs:
-#                 fix_count = index - len(params) - 1
-#     return args
+def _get_params(fn) -> List[Parameter]:
+    return list(filter(lambda p: p.kind not in (p.VAR_KEYWORD, p.VAR_POSITIONAL),
+                       signature(fn).parameters.values()))
 
 
-def curry(fn):
+def _no_fill_params(params: List[Parameter]):
+    return len(list(filter(lambda p: p.default is p.empty, params)))
+
+
+def _all_curry(fn):
+    """
+    * 废弃
+    :param fn:
+    :return:
+    """
     @wraps(fn.func if hasattr(fn, 'func') else fn)
     def curried(*args, **kwargs):
         spec = getfullargspec(fn.func if hasattr(fn, 'func') else fn)
         # args = move_kw_to_pos(spec, args, kwargs)
         has_args = bool(spec.args) or bool(spec.varargs)
         # has_kw = bool(spec.kwonlyargs) or bool(spec.varkw)
-        holders = count_holder(fn)
-        updated_fn = update_args(fn, args) if has_args else fn
+        holders = _count_holder(fn)
+        updated_fn = update_args(fn, *args) if has_args else fn
         updated_fn = partial(updated_fn, **kwargs) if len(kwargs) else updated_fn
-        un_fill_params = list(signature(updated_fn).parameters.values())
+        un_fill_params = _get_params(updated_fn)
 
-        direct_run = not count_holder(updated_fn) and any([
+        direct_run = not _count_holder(updated_fn) and any([
             # 没有需要填充的参数
             len(un_fill_params) == 0,
             not bool(spec.kwonlyargs) and is_filled(updated_fn, spec),
@@ -76,6 +86,31 @@ def curry(fn):
         ])
         if direct_run:
             return updated_fn()
-        return curry(updated_fn)
+        return _all_curry(updated_fn)
 
     return curried
+
+
+def _simple_curry(fn):
+    @wraps(fn)
+    def curried(*args, **kwargs):
+        updated_fn = update_args(fn, *args, **kwargs)
+        params = _get_params(updated_fn)
+        can_run = all([
+            _count_holder(updated_fn) == 0,
+            _no_fill_params(params) == 0,
+        ])
+        return updated_fn() if can_run else _simple_curry(updated_fn)
+
+    return curried
+
+
+def _proxy_curry(fn: Callable):
+    spec = getfullargspec(fn)
+    # 只有一个参数或者没有参数时：返回方法本身
+    if not (_count_args(spec) > 1 or spec.varargs or spec.varkw):
+        return fn
+    return _simple_curry(fn)
+
+
+curry = _proxy_curry
