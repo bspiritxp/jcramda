@@ -3,7 +3,11 @@ from . import curry
 
 
 __all__ = (
-    'lt', 'le', 'eq', 'ne', 'ge', 'gt', 'not_', 'truth', 'is_', 'is_not',
+    'lt', 'le', 'eq', 'ne', 'ge', 'gt', 'not_', 'truth', 'is_', 'is_not', 'is_a', 'is_not_a',
+    'add', 'sub', 'and_', 'floordiv', 'div', 'inv', 'lshift', 'mod', 'mul', 'matmul',
+    'neg', 'or_', 'pos', 'pow_', 'xor', 'concat', 'contains', 'countOf', 'delitem', 'getitem',
+    'indexOf', 'setitem', 'attr', 'props', 'bind','iadd', 'iand', 'iconcat', 'ifloordiv', 
+    'ilshift', 'imod', 'imul', 'imatmul', 'ior', 'ipow', 'irshift', 'isub', 'idiv', 'ixor',      
 )
 
 # Comparison ===========================
@@ -22,6 +26,8 @@ not_ = _op.not_
 truth = _op.truth
 is_ = curry(_op.is_)
 is_not = curry(_op.is_not)
+is_a = curry(lambda types, obj: isinstance(obj, types))
+is_not_a = curry(lambda types, obj: not isinstance(obj, types))
 
 
 # Math
@@ -39,7 +45,7 @@ matmul = curry(_op.matmul)
 neg = _op.neg
 or_ = curry(_op.or_)
 pos = _op.pos
-power = curry(lambda p, x: x ** p)
+pow_ = curry(lambda p, x: x ** p)
 xor = curry(_op.xor)
 
 
@@ -54,8 +60,22 @@ indexOf = curry(_op.indexOf)
 setitem = curry(_op.setitem)
 
 
-prop = _op.attrgetter
-fetch = _op.itemgetter
+attr = _op.attrgetter
+props = _op.itemgetter
 bind = _op.methodcaller
 
 
+iadd        = curry(_op.iadd)
+iand        = curry(_op.iand)
+iconcat     = curry(_op.iconcat)
+ifloordiv   = curry(_op.ifloordiv)
+ilshift     = curry(_op.ilshift)
+imod        = curry(_op.imod)
+imul        = curry(_op.imul)
+imatmul     = curry(_op.imatmul)
+ior         = curry(_op.ior)
+ipow        = curry(_op.ipow)
+irshift     = curry(_op.irshift)
+isub        = curry(_op.isub)
+idiv        = curry(_op.itruediv)
+ixor        = curry(_op.ixor)
