@@ -1,14 +1,6 @@
-from functools import partial, reduce
 from ._curry import curry, _
-from .compose import compose, co, pipe
 from .operator import *
+from .itertools import *
+from .mapping import *
+from .compose import *
 
-
-__all__ = (
-    'curry',
-    '_',
-    'compose',
-    'co',
-    'partial',
-    'reduce',
-)
