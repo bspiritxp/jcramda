@@ -13,12 +13,14 @@ def test_map_and_of():
     assert (1, 3, 5) == fmapof(lambda x: [x])((1, 3, 5))
 
 
-def test_i_each():
-    from .operator import pow_
-    assert (0, 1, 4) == i_each(pow_(2), 3)
-    assert (1, 4, 9) == i_each(pow_(2))(4, 1)
-    assert (1, 4, 9) == i_each(pow_(2), 4, 1)
-    assert (1, 9, 25) == i_each(pow_(2))(6, 1, 2)
+def test_each():
+    result = []
+
+    def each_a(index, item):
+        result.append(item + index)
+
+    each(each_a, (1, 2, 3))
+    assert [1, 3, 5] == result
 
 
 def test_chain():

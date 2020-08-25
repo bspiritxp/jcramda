@@ -1,6 +1,5 @@
-from ._curry import curry, _
+from ._curry import curry, _, is_curried, flip
 from .operator import *
 from .itertools import *
-from .mapping import *
 from .compose import *
 

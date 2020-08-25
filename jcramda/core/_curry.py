@@ -101,7 +101,7 @@ def _simple_curry(fn):
             _no_fill_params(params) == 0,
         ])
         return updated_fn() if can_run else _simple_curry(updated_fn)
-
+    curried.__curried__ = True
     return curried
 
 
@@ -114,3 +114,21 @@ def _proxy_curry(fn: Callable):
 
 
 curry = _proxy_curry
+
+
+def is_curried(f):
+    return hasattr(f, '__curried__') and f.__curried__
+
+
+def flip(f):
+    """
+    反转一个“双参数” 方法的参数位置
+
+    ps: 如果需要修改多参数方法的位置，请使用 `_` 占位符
+    :param f:
+    :return:
+    """
+    @curry
+    def flipped(a, b):
+        return f(b, a)
+    return flipped
