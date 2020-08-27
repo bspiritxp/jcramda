@@ -30,3 +30,7 @@ def test_if_else():
     assert 64 == stmt(8)
     assert 8 == stmt(5)
 
+
+def test_always():
+    assert 1 == always(1, 3)
+    assert 'b' == always('b', 'a')

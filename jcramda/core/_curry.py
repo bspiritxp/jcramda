@@ -1,8 +1,19 @@
-from inspect import signature, Parameter, getfullargspec, FullArgSpec, _empty
+from inspect import signature, Parameter, getfullargspec, FullArgSpec
 from functools import wraps, partial
 from typing import Callable, List
 
-_ = Parameter.empty
+
+__all__ = (
+    'EmptyParam',
+    'curry',
+    'flip',
+    'is_curried',
+    '_',
+)
+
+
+EmptyParam = Parameter.empty
+_ = EmptyParam
 
 
 def has_default_value(p: Parameter):
@@ -11,7 +22,7 @@ def has_default_value(p: Parameter):
 
 def _count_holder(fn):
     if isinstance(fn, partial) and len(fn.args) > 0:
-        return len(list(filter(lambda x: x is _, fn.args)))
+        return len(list(filter(lambda x: x is EmptyParam, fn.args)))
     return 0
 
 
@@ -122,13 +133,13 @@ def is_curried(f):
 
 def flip(f):
     """
-    反转一个“双参数” 方法的参数位置
+    反转一个【双参数】方法的参数位置
 
     ps: 如果需要修改多参数方法的位置，请使用 `_` 占位符
     :param f:
     :return:
     """
     @curry
-    def flipped(a, b):
-        return f(b, a)
-    return flipped
+    def flipped(a, b, *args, **kwargs):
+        return f(b, a, *args, **kwargs)
+    return wraps(f)(flipped)

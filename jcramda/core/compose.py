@@ -1,12 +1,11 @@
-from typing import Callable, Iterable, Optional
 from functools import reduce, partial
-
+from typing import Callable
 
 __all__ = (
     'compose',
     'pipe',
     'co',
-    'chain',
+    'partial',
 )
 
 
@@ -26,21 +25,3 @@ co = compose
 
 def pipe(*funcs: Callable):
     return compose(*reversed(funcs))
-
-
-def chain(*args):
-    if not isinstance(args[-1], Callable):
-        *fs, seqs = args
-        funcs = list(reversed(fs))
-    else:
-        funcs = list(reversed(args))
-        seqs = None
-    assert all(map(lambda x: isinstance(x, Callable), funcs))
-    if len(funcs) == 1:
-        mapper = co(tuple, partial(map, funcs[0]))
-        return mapper(seqs) if seqs else mapper
-
-    def reducer(xs):
-        return reduce(lambda r, f: f(r, xs), funcs[1:], funcs[0](xs))
-
-    return reducer(seqs) if seqs else reducer

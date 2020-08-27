@@ -1,6 +1,5 @@
 import itertools as its
 from .itertools import *
-from .compose import chain
 
 
 def test_map_and_of():
@@ -16,20 +15,21 @@ def test_map_and_of():
 def test_each():
     result = []
 
-    def each_a(index, item):
-        result.append(item + index)
+    def each_a(item):
+        idx, value = item
+        result.append(idx + value)
 
-    each(each_a, (1, 2, 3))
+    each(each_a, enumerate((1, 2, 3)))
     assert [1, 3, 5] == result
 
 
 def test_chain():
-    from ..sequence import head, append
-    from .operator import add, pow_, floordiv, mul
-    assert chain(pow_(2))((1, 2, 3, 4)) == (1, 4, 9, 16)
+    from ..sequence import append
+    from .operator import add, pow_, floordiv, mul, sub
+    assert of(chain(pow_(2))((1, 2, 3, 4))) == (1, 4, 9, 16)
     # append(head([1, 2, 3]), [1, 2, 3])
-    assert chain(append, head, [1, 2, 3]) == [1, 2, 3, 1]
+    assert of(chain(append, first, [1, 2, 3])) == (1, 2, 3, 1)
     # 3 ** (3 + 1) == 81
     assert chain(pow_, add(1), 3) == 81
-    # (5 + 6) // 5 * 5
-    assert chain(mul, floordiv, add(6))(5) == 10
+    # ( 8 // ( 8 - 4 ) ) * 8
+    assert chain(mul, floordiv, sub(4))(8) == 16

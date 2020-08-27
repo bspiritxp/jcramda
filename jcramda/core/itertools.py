@@ -1,28 +1,37 @@
-from typing import Iterable, Callable, Any, Union
+from typing import Iterable, Callable, Any, Union, Sized, Optional
 from functools import reduce as _reduce
 import itertools as its
-from . import curry
+from more_itertools import with_iter, intersperse as _intersperse, consume, side_effect, ilen, \
+    always_reversible as reverse, one
+from ._curry import curry
+from .operator import is_a, not_a
 
 __all__ = (
     'of',
+    'flatten',
+    'one',
     'fold',
+    'chain',
+    'first',
+    'last',
     'maps',
     'mapof',
     'starmap',
     'each',
-    'ieach',
-    'foreach',
     'fmap',
     'fmapof',
     'filter_',
     'filter_not',
     'dropwhile',
     'takewhile',
-    'slice_',
     'product',
     'permute',
     'combine',
     'zip_',
+    'islice',
+    'with_iter',
+    'ilen',
+    'reverse',
 )
 
 
@@ -33,6 +42,23 @@ def of(*args):
     :return: tuple
     """
     return tuple(its.chain(*[x if isinstance(x, Iterable) else [x] for x in args]))
+
+
+def flatten(*iters):
+    from more_itertools import collapse
+    return *collapse(iters),
+
+
+def first(iterable):
+    return next(iter(iterable), None)
+
+
+def last(iterable):
+    try:
+        return iterable[-1]
+    except (TypeError, AttributeError, KeyError):
+        from collections import deque
+        return deque(iterable, maxlen=1)[0]
 
 
 @curry
@@ -62,23 +88,13 @@ starmap = curry(its.starmap)
 
 
 @curry
-def each(func, seqs):
-    for index, item in enumerate(seqs):
-        func(index, item)
+def islice(rng: Union[int, tuple], iterate):
+    return its.islice(iterate, *rng if isinstance(rng, tuple) else rng)
 
 
 @curry
-def ieach(func, end, start=0, step=1):
-    for i in range(start, end, step):
-        if i >= end:
-            break
-        func(i)
-
-
-@curry
-def foreach(func, seqs):
-    for item in seqs:
-        func(item)
+def each(func, seqs, chunk_size=None, before=None, after=None):
+    return consume(side_effect(func, seqs, chunk_size, before, after))
 
 
 @curry
@@ -115,7 +131,7 @@ def fmapof(func, seqs):
 
 @curry
 def repeat(x, n):
-    return tuple(its.repeat(x, n))
+    return its.repeat(x, n)
 
 
 dropwhile = curry(its.dropwhile)
@@ -128,11 +144,6 @@ def filter_(func, seqs):
 
 
 filter_not = curry(its.filterfalse)
-
-
-@curry
-def slice_(rng: range, seq: Iterable):
-    return seq[rng.start:rng.stop:rng.step]
 
 
 @curry
@@ -166,3 +177,33 @@ def combine(seqs, r):
 @curry
 def zip_(fill_value, seq, *seqs):
     return its.zip_longest(seq, *seqs, fillvalue=fill_value)
+
+
+@curry
+def groupby(func, iterable):
+    return its.groupby(iterable, func),
+
+
+def chain(*args):
+    funcs = of(reverse(filter(is_a(Callable), args)))
+    f_count = len(funcs)
+    if f_count <= 0:
+        return flatten(*args)
+
+    seqs = first(filter(not_a(Callable), args))
+    if f_count == 1:
+        reducer = maps(first(funcs))
+        return reducer(seqs) if len(args) > f_count else reducer
+
+    def reducer(xs):
+        init_value = first(funcs)(xs)
+        return _reduce(lambda r, f: f(r, xs), funcs[1:], init_value)
+
+    return reducer(seqs) if seqs else reducer
+
+
+# 等距插入固定元素 (e, iterable, n=1) -> Iterable
+#         >>> list(intersperse('!', [1, 2, 3, 4, 5]))
+#         [1, '!', 2, '!', 3, '!', 4, '!', 5]
+intersperse = curry(_intersperse)
+
