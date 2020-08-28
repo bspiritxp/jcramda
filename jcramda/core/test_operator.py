@@ -34,3 +34,47 @@ def test_if_else():
 def test_always():
     assert 1 == always(1, 3)
     assert 'b' == always('b', 'a')
+
+
+def test_base():
+    assert add(3, 4) == add(3)(4) == 7
+    assert sub(2, 8) == sub(2)(8) == 6
+    assert floordiv(2, 5) == floordiv(2)(5) == 2
+    assert div(2, 4) == div(2)(4) == 2
+    assert mod(3, 10) == mod(3)(10) == 1
+    assert mul(2, 3) == mul(2)(3) == 6
+    assert or_(True)(False) is True
+    assert and_(True)(False) is False
+    assert not_(True) is False
+    assert truth([]) is False
+    assert is_(True)(True)
+    assert is_a(int)(3)
+    assert not_a((int, float))('a')
+
+
+def test_seq():
+    assert concat((1, 2, 3))((4, 5)) == (1, 2, 3, 4, 5)
+    assert in_(_, 3)((1, 2, 3,)) == in_((1, 2, 3))(3)
+    assert not_in(_, 3)((1, 2, 4)) == not_in((1, 2, 4))(3)
+    assert countOf(3)((1, 2, 3)) == 1
+    assert getitem(3)((1, 2, 3, 4)) == 4
+    assert indexOf(3)((3, 2, 1, 3)) == 0
+
+
+def test_getter():
+    class TestObj:
+        pass
+    tobj = TestObj()
+    tobj.testattr = 1
+    tobj.chain = TestObj()
+    tobj.chain.t = 2
+    assert attr('testattr')(tobj) == 1
+    assert attr('chain.t')(tobj) == 2
+    assert props('a', 'b')({'a': 4, 'b': 5}) == (4, 5)
+    assert props('b', 'a')({'a': 4, 'b': 5}) == (5, 4)
+
+
+def test_bind():
+    assert bind('lower')('AbD') == 'abd'
+    assert bind('replace', 'b', 'f')('fabsdfff') == 'fafsdfff'
+

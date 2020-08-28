@@ -8,7 +8,8 @@ __all__ = (
     'chunked', 'windowed', 'padded', 'nth_or_last', 'iterate', 'split_before',
     'split_after', 'split_at', 'split_into', 'split_when', 'distribute', 'adjacent',
     'locate', 'lstrip', 'rstrip', 'strip', 'take', 'tabulate', 'tail', 'consume', 'nth',
-    'all_eq', 'quantify', 'ncycles', 'replace', 'map_reduce',
+    'all_eq', 'quantify', 'ncycles', 'find_one', 'iter_except', 'unique_set', 'grouper',
+    'partition',
 )
 
 
@@ -92,15 +93,5 @@ grouper = flip(mil.grouper)
 partition = curry(mil.partition)
 unique_set = flip(mil.unique_everseen)
 iter_except = curry(mil.iter_except)
-first_true = curry(lambda f, dv, xs: mil.first_true(xs, dv, f))
+find_one = curry(lambda f, xs: mil.first_true(xs, None, f))
 
-
-@curry
-def replace(pred, sub, iterable, count=None, window_size=1):
-    return mil.replace(iterable, pred, sub, count, window_size)
-
-
-@curry
-def map_reduce(key: Callable, emit: Callable, iterable: Iterable, reducer: Callable = None):
-    from more_itertools import map_reduce
-    return map_reduce(iterable, key, emit, reducer)

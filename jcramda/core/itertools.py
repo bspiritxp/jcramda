@@ -2,7 +2,7 @@ from typing import Iterable, Callable, Any, Union, Sized, Optional
 from functools import reduce as _reduce
 import itertools as its
 from more_itertools import with_iter, intersperse as _intersperse, consume, side_effect, ilen, \
-    always_reversible as reverse, one
+    always_reversible as reverse, one, replace as _replace
 from ._curry import curry
 from .operator import is_a, not_a
 
@@ -32,6 +32,8 @@ __all__ = (
     'with_iter',
     'ilen',
     'reverse',
+    'replace',
+    'map_reduce',
 )
 
 
@@ -207,3 +209,13 @@ def chain(*args):
 #         [1, '!', 2, '!', 3, '!', 4, '!', 5]
 intersperse = curry(_intersperse)
 
+
+@curry
+def replace(pred, sub, iterable, count=None, window_size=1):
+    return _replace(iterable, pred, sub, count, window_size)
+
+
+@curry
+def map_reduce(key: Callable, emit: Callable, iterable: Iterable, reducer: Callable = None):
+    from more_itertools import map_reduce
+    return map_reduce(iterable, key, emit, reducer)
