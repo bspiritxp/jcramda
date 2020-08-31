@@ -1,10 +1,11 @@
 from typing import Iterable, Callable, Any, Union, Sized, Optional
-from functools import reduce as _reduce
+from functools import reduce as _reduce, partial
 import itertools as its
 from more_itertools import with_iter, intersperse as _intersperse, consume, side_effect, ilen, \
-    always_reversible as reverse, one, replace as _replace
+    always_reversible as reverse, replace as _replace, one as _one
 from ._curry import curry
-from .operator import is_a, not_a
+from .compose import co
+from .operator import is_a, not_a, is_none
 
 __all__ = (
     'of',
@@ -15,6 +16,7 @@ __all__ = (
     'first',
     'last',
     'maps',
+    'map_',
     'mapof',
     'starmap',
     'each',
@@ -43,12 +45,23 @@ def of(*args):
     :param args: Iterable
     :return: tuple
     """
-    return tuple(its.chain(*[x if isinstance(x, Iterable) else [x] for x in args]))
+    return *its.chain(*[x if isinstance(x, Iterable) else [x] for x in args]),
 
 
 def flatten(*iters):
+    if len(iters) == 1 and not_a(Iterable, iters[0]):
+        return iters[0]
     from more_itertools import collapse
     return *collapse(iters),
+
+
+def one(iterable):
+    """ 如果传入的迭代器仅有一个元素，则返回这个元素，否则返回迭代器的结果（Tuple） """
+    r = tuple(iterable) if is_a(Iterable, iterable) else iterable
+    try:
+        return _one(r)
+    except (TypeError, IndexError, ValueError):
+        return r
 
 
 def first(iterable):
@@ -78,6 +91,8 @@ def fold(func, init, it):
 @curry
 def maps(func, it, *args):
     return map(func, it, *args)
+
+map_ = maps
 
 
 @curry
@@ -187,21 +202,13 @@ def groupby(func, iterable):
 
 
 def chain(*args):
-    funcs = of(reverse(filter(is_a(Callable), args)))
-    f_count = len(funcs)
-    if f_count <= 0:
-        return flatten(*args)
+    funcs = reverse(filter(is_a(Callable), args))
+    first_func = first(funcs) or flatten
+    seqs = of(filter(not_a(Callable), args))
+    reducer = co(one, flatten,
+                 maps(lambda x: fold(lambda r, f: f(r, x), first_func(x), funcs)))
 
-    seqs = first(filter(not_a(Callable), args))
-    if f_count == 1:
-        reducer = maps(first(funcs))
-        return reducer(seqs) if len(args) > f_count else reducer
-
-    def reducer(xs):
-        init_value = first(funcs)(xs)
-        return _reduce(lambda r, f: f(r, xs), funcs[1:], init_value)
-
-    return reducer(seqs) if seqs else reducer
+    return reducer(seqs) if seqs else co(reducer, of)
 
 
 # 等距插入固定元素 (e, iterable, n=1) -> Iterable

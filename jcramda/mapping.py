@@ -164,16 +164,12 @@ def sorted_by_key(key_f, d, reverse=False):
 
 
 def d_merge(*args: dict):
-    dicts = filter(is_a_dict, args)
-    return dict(zip(chain(map(keys, dicts)), chain(map(values, dicts))))
+    return dict(zip(chain(map(keys, args)), chain(map(values, args))))
 
 
 def flat_merge(*args, **kwargs):
-    if len(args) == 1 and not_a((dict, list), args[0]):
-        return args[0]
-    result = map(when([
-            (is_a_dict, lambda d: flat_merge(**d)),
-            (is_a_list, co(filter_(not_none), maps(flat_merge))),
-        ], identity), args)
+    dicts = filter(is_a_dict, args)
+    lists = filter(is_a_list, args)
 
+    result = d_merge(*dicts)
 
