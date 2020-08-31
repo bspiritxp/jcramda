@@ -28,7 +28,7 @@ __all__ = (
     'trans_keys',
     'dpop',
     'sorted_by_key',
-    'd_merge',
+    'assign',
 )
 
 not_dict = not_a(dict)
@@ -163,8 +163,11 @@ def sorted_by_key(key_f, d, reverse=False):
     return OrderedDict(sorted(d.items(), key=key_f, reverse=reverse))
 
 
-def d_merge(*args: dict):
-    return dict(zip(chain(map(keys, args)), chain(map(values, args))))
+def assign(*args: dict):
+    mappers = of(filter(is_a_dict, args))
+    if not mappers:
+        return {}
+    return dict(zip(chain(map(keys, mappers)), chain(map(values, mappers))))
 
 
 def flat_merge(*args, **kwargs):
