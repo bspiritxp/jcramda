@@ -11,7 +11,7 @@ __all__ = (
     'indexOf', 'setitem', 'attr', 'props', 'bind',
     # 'iadd', 'iand', 'iconcat', 'ifloordiv', 'ilshift', 'imod', 'imul', 'imatmul', 'ior', 'ipow',
     # 'irshift', 'isub', 'idiv', 'ixor',
-    'identity', 'when', 'always', 'if_else',
+    'identity', 'when', 'always', 'if_else', 'all_', 'any_',
 )
 
 
@@ -123,3 +123,16 @@ def try_catch(p: Iterable[Callable], value):
         return func(value)
     except Exception:
         return failed(value)
+
+
+@curry
+def all_(funcs: Iterable[Callable[[Any], bool]], v):
+    return all(map(lambda f: f(v), funcs))
+
+
+@curry
+def any_(funcs: Iterable[Callable[[Any], bool]], v):
+    for f in funcs:
+        if f(v):
+            return True
+    return False

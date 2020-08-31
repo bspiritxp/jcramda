@@ -5,7 +5,7 @@ from collections import OrderedDict
 from typing import Iterable, Union, Any, Mapping, MutableMapping
 
 from .core import curry, delitem, props, co, first, identity, fold, each, setitem, not_a, when, \
-    not_none, filter_, maps, _, of, chain
+    not_none, filter_, maps, _, of, chain, all_, truth
 from .comparison import is_a_dict, is_a_func, is_a_int, is_a_list, is_iter
 from .sequence import nth
 
@@ -168,8 +168,8 @@ def d_merge(*args: dict):
 
 
 def flat_merge(*args, **kwargs):
-    dicts = filter(is_a_dict, args)
-    lists = filter(is_a_list, args)
+    dicts = filter(all_([is_a_dict, truth]), args)
+    lists = filter(all_([is_a_list, truth]), args)
 
-    result = d_merge(*dicts)
+    result = d_merge(*dicts, kwargs)
 
