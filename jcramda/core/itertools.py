@@ -203,7 +203,9 @@ def groupby(func, iterable):
 
 def chain(*args):
     funcs = reverse(filter(is_a(Callable), args))
-    first_func = first(funcs) or flatten
+    first_func = first(funcs)
+    if is_none(first_func):
+        return flatten(*args)
     seqs = of(filter(not_a(Callable), args))
     reducer = co(one, flatten,
                  maps(lambda x: fold(lambda r, f: f(r, x), first_func(x), funcs)))

@@ -2,11 +2,11 @@
 Ramda mapping functions
 """
 from collections import OrderedDict
-from typing import Iterable, Union, Any, Mapping, MutableMapping
+from typing import Iterable, Union, Any, Mapping, MutableMapping, Sequence
 
-from .core import curry, delitem, props, co, first, identity, fold, each, setitem, not_a, when, \
-    not_none, filter_, maps, _, of, chain, all_, truth
-from .comparison import is_a_dict, is_a_func, is_a_int, is_a_list, is_iter
+from .comparison import is_a_dict, is_a_func, is_a_int, is_iter, is_a_mapper, is_seq
+from .core import (curry, delitem, props, co, first, fold, each, setitem, not_a, not_none, of,
+                   truth, all_, truth, is_a)
 from .sequence import nth
 
 __all__ = (
@@ -29,6 +29,10 @@ __all__ = (
     'dpop',
     'sorted_by_key',
     'assign',
+    'mstrip',
+    'strip_none',
+    'strip_empty',
+    'flat_concat',
 )
 
 not_dict = not_a(dict)
@@ -167,12 +171,36 @@ def assign(*args: dict):
     mappers = of(filter(is_a_dict, args))
     if not mappers:
         return {}
-    return dict(zip(chain(map(keys, mappers)), chain(map(values, mappers))))
+    return dict(zip(of(*map(keys, mappers)), of(*map(values, mappers))))
 
 
-def flat_merge(*args, **kwargs):
-    dicts = filter(all_([is_a_dict, truth]), args)
-    lists = filter(all_([is_a_list, truth]), args)
+@curry
+def mstrip(f, mapper: Mapping):
+    return type(mapper)(filter(f, mapper.items()))
 
-    result = d_merge(*dicts, kwargs)
 
+strip_none = mstrip(lambda item: not_none(item[1]))
+strip_empty = mstrip(lambda item: truth(item[1]))
+
+
+def flat_concat(*args, **kwargs):
+    """ 平铺传入的字典
+    如果传入参数中有Mapping，则只处理Mapping
+    如果传入参数中没有Mapping，则会处理 Sequence[Mapping]
+    否则什么都不处理
+    :param args:
+    :param kwargs:
+    :return:
+    """
+    dicts = filter(all_([is_a_mapper, truth]), args)
+    lists = of(*filter(all_([is_a((list, tuple)), truth]), args))
+
+    merged = assign(*dicts, kwargs)
+    if merged:
+        return strip_empty(map_apply(
+            lambda item: {item[0]:
+                          flat_concat(item[1]) if is_a((Mapping, list, tuple), item[1]) else item[1]},
+            merged.items()
+        ))
+    return of(map(lambda x: flat_concat(x)
+                  if is_a((Mapping, list, tuple), x) else x, lists)) or {*filter(truth, args)}
