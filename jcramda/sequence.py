@@ -4,7 +4,7 @@ from collections import *
 from .core import curry, between, flip, of
 
 __all__ = (
-    'append', 'prepend', 'pop', 'shift', 'update', 'adjust', 'join', 'slices',
+    'append', 'prepend', 'pop', 'shift', 'update', 'adjust', 'slices',
     'chunked', 'windowed', 'padded', 'nth_or_last', 'iterate', 'split_before',
     'split_after', 'split_at', 'split_into', 'split_when', 'distribute', 'adjacent',
     'locate', 'lstrip', 'rstrip', 'strip', 'take', 'tabulate', 'tail', 'consume', 'nth',
@@ -42,11 +42,6 @@ def adjust(index: int, f: Callable, seqs: MutableSequence):
     if between(0, len(seqs), index):
         seqs[index] = f(seqs[index])
     return seqs
-
-
-@curry
-def join(sep: str, seqs: Iterable) -> str:
-    return sep.join([str(x) for x in seqs if x is not None])
 
 
 @curry

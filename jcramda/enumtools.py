@@ -1,6 +1,6 @@
 from enum import Enum
 
-from .core import curry, co, attr, bind, indexOf, is_a
+from .core import curry, co, attr, bind, index, is_a
 from .sequence import find_one, nth
 from .comparison import attr_eq
 
@@ -41,7 +41,7 @@ def nameof(name, e):
 
 
 # (member, Enum) -> int
-e_index_of = curry(lambda m, e: indexOf(m, members(e)))
+e_index_of = curry(lambda m, e: index(m, members(e)))
 
 e_index_by = curry(lambda i, e: nth(i)(members(e)))
 

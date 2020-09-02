@@ -33,8 +33,9 @@ __all__ = (
     'islice',
     'with_iter',
     'ilen',
+    'repeat',
     'reverse',
-    'replace',
+    'ireplace',
     'map_reduce',
 )
 
@@ -92,6 +93,7 @@ def fold(func, init, it):
 def maps(func, it, *args):
     return map(func, it, *args)
 
+
 map_ = maps
 
 
@@ -147,7 +149,7 @@ def fmapof(func, seqs):
 
 
 @curry
-def repeat(x, n):
+def repeat(n, x):
     return its.repeat(x, n)
 
 
@@ -220,8 +222,8 @@ intersperse = curry(_intersperse)
 
 
 @curry
-def replace(pred, sub, iterable, count=None, window_size=1):
-    return _replace(iterable, pred, sub, count, window_size)
+def ireplace(pred, sub, iterable, _count=None, window_size=1):
+    return _replace(iterable, pred, sub, _count, window_size)
 
 
 @curry

@@ -1,14 +1,15 @@
 import operator as _op
 from typing import Tuple, Callable, Any, Iterable
+from itertools import islice
+from ._curry import curry, flip
 
-from . import curry, flip
 
 __all__ = (
     'lt', 'le', 'eq', 'ne', 'ge', 'gt', 'not_', 'truth', 'is_', 'is_not', 'is_a', 'not_a',
     'not_none', 'is_none', 'between','not_in',
     'add', 'sub', 'and_', 'floordiv', 'div', 'inv', 'lshift', 'mod', 'mul', 'matmul',
     'neg', 'or_', 'pos', 'pow_', 'xor', 'concat', 'in_', 'countOf', 'delitem', 'getitem',
-    'indexOf', 'setitem', 'attr', 'props', 'bind',
+    'index', 'setitem', 'attr', 'props', 'bind',
     # 'iadd', 'iand', 'iconcat', 'ifloordiv', 'ilshift', 'imod', 'imul', 'imatmul', 'ior', 'ipow',
     # 'irshift', 'isub', 'idiv', 'ixor',
     'identity', 'when', 'always', 'if_else', 'all_', 'any_',
@@ -61,7 +62,6 @@ not_in = curry(lambda a, b: b not in a)
 countOf = flip(_op.countOf)
 delitem = flip(_op.delitem)
 getitem = flip(_op.getitem)
-indexOf = flip(_op.indexOf)
 setitem = curry(lambda d, key, value: _op.setitem(d, key, value))
 
 attr = _op.attrgetter
@@ -85,6 +85,14 @@ bind = _op.methodcaller
 
 
 # customs ==============================
+@curry
+def index(x, xs, start=0, end=None):
+    try:
+        return _op.indexOf(islice(xs, start, end), x)
+    except ValueError:
+        return None
+
+
 @curry
 def identity(f, *args, **kw):
     if isinstance(f, Callable):

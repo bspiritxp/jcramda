@@ -2,11 +2,11 @@
 Ramda mapping functions
 """
 from collections import OrderedDict
-from typing import Iterable, Union, Any, Mapping, MutableMapping, Sequence
+from typing import Iterable, Union, Any, Mapping, MutableMapping
 
-from .comparison import is_a_dict, is_a_func, is_a_int, is_iter, is_a_mapper, is_seq, nostr_iter
+from .comparison import is_a_dict, is_a_func, is_a_int, is_a_mapper, is_simple_iter
 from .core import (curry, delitem, props, co, first, fold, each, setitem, not_a, not_none, of,
-                   truth, all_, truth, is_a)
+                   all_, truth, is_a)
 from .sequence import nth
 
 __all__ = (
@@ -33,6 +33,9 @@ __all__ = (
     'strip_none',
     'strip_empty',
     'flat_concat',
+    'orderby',
+    'ordered_key',
+    'ordered_value',
 )
 
 not_dict = not_a(dict)
@@ -58,14 +61,15 @@ def propor(prop_name, default, mapper: Mapping):
 
 @curry
 def loc(prop_name, mapper: Mapping):
-    if hasattr(mapper, 'get'):
-        return mapper.get(prop_name)
+    if is_a_int(prop_name):
+        prop_name = nth(prop_name)(mapper)
     if hasattr(mapper, 'loc'):
         return mapper.loc[prop_name]
-    if is_a_int(prop_name):
-        return nth(prop_name)(mapper)
+    if hasattr(mapper, 'get'):
+        return mapper.get(prop_name)
 
 
+@curry
 def obj(_keys: Union[str, Iterable[Any]], _values):
     if isinstance(_keys, str):
         return {_keys: _values}
@@ -82,14 +86,7 @@ def values(mapper: Mapping):
 
 @curry
 def de(_keys: Iterable, mapper: Mapping):
-    return props(*filter(lambda k: k in mapper, _keys))(mapper)
-
-
-@curry
-def each_keys(func, _keys, mapper):
-    for key in _keys:
-        if key in mapper:
-            func(key)
+    return of(props(*filter(lambda k: k in mapper, _keys))(mapper))
 
 
 @curry
@@ -143,7 +140,7 @@ def key_map(fn, d: Mapping):
 
 @curry
 def trans_keys(key_fn, d, deep=False):
-    if is_iter(d):
+    if is_simple_iter(d):
         result = [trans_keys(key_fn, item, deep) if is_a_dict(item) else item for item in d]
     elif is_a_dict(d):
         result = key_map(key_fn, d)
@@ -193,7 +190,7 @@ def flat_concat(*args, **kwargs):
     :return:
     """
     dicts = filter(all_([is_a_mapper, truth]), args)
-    lists = of(*filter(all_([nostr_iter, truth]), args))
+    lists = of(*filter(all_([is_simple_iter, truth]), args))
 
     merged = assign(*dicts, kwargs)
     if merged:
@@ -205,3 +202,24 @@ def flat_concat(*args, **kwargs):
         ))
     return of(map(lambda x: flat_concat(x)
                   if is_a((Mapping, list, tuple), x) else x, lists)) or {*filter(truth, args)}
+
+
+@curry
+def orderby(key_f, d: dict, reverse=False):
+    """
+    对字典进行排序
+
+    > r = orderby(lambda item: item[1], {'a':3, 'b':1})
+    > print(r)
+    > OrderedDict([('b', 1), ('a', 3)])
+
+    :param key_f: Tuple[_K, _V] -> Comparable
+    :param d: dict
+    :param reverse: bool
+    :return:
+    """
+    return OrderedDict(sorted(d.items(), key=key_f, reverse=reverse))
+
+
+ordered_key = orderby(None)
+ordered_value = orderby(lambda x: x[1])

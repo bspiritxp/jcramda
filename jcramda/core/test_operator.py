@@ -58,7 +58,7 @@ def test_seq():
     assert not_in(_, 3)((1, 2, 4)) == not_in((1, 2, 4))(3)
     assert countOf(3)((1, 2, 3)) == 1
     assert getitem(3)((1, 2, 3, 4)) == 4
-    assert indexOf(3)((3, 2, 1, 3)) == 0
+    assert index(3)((3, 2, 1, 3)) == 0
 
 
 def test_getter():
