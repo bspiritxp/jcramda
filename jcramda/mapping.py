@@ -4,7 +4,7 @@ Ramda mapping functions
 from collections import OrderedDict
 from typing import Iterable, Union, Any, Mapping, MutableMapping, Sequence
 
-from .comparison import is_a_dict, is_a_func, is_a_int, is_iter, is_a_mapper, is_seq
+from .comparison import is_a_dict, is_a_func, is_a_int, is_iter, is_a_mapper, is_seq, nostr_iter
 from .core import (curry, delitem, props, co, first, fold, each, setitem, not_a, not_none, of,
                    truth, all_, truth, is_a)
 from .sequence import nth
@@ -167,7 +167,7 @@ def sorted_by_key(key_f, d, reverse=False):
     return OrderedDict(sorted(d.items(), key=key_f, reverse=reverse))
 
 
-def assign(*args: dict):
+def assign(*args: Mapping):
     mappers = of(filter(is_a_dict, args))
     if not mappers:
         return {}
@@ -188,18 +188,19 @@ def flat_concat(*args, **kwargs):
     如果传入参数中有Mapping，则只处理Mapping
     如果传入参数中没有Mapping，则会处理 Sequence[Mapping]
     否则什么都不处理
-    :param args:
+    :param args: Union[list, dict]
     :param kwargs:
     :return:
     """
     dicts = filter(all_([is_a_mapper, truth]), args)
-    lists = of(*filter(all_([is_a((list, tuple)), truth]), args))
+    lists = of(*filter(all_([nostr_iter, truth]), args))
 
     merged = assign(*dicts, kwargs)
     if merged:
         return strip_empty(map_apply(
             lambda item: {item[0]:
-                          flat_concat(item[1]) if is_a((Mapping, list, tuple), item[1]) else item[1]},
+                          flat_concat(item[1]) if is_a((Mapping, list, tuple), item[1])
+                          else item[1]},
             merged.items()
         ))
     return of(map(lambda x: flat_concat(x)

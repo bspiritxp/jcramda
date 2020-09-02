@@ -1,11 +1,10 @@
 from typing import Dict, List, Tuple, AnyStr, Callable, Iterable, Mapping, Sequence
-from .core import curry, flip, co, lt, le, gt, ge, eq, attr, is_a
-
+from .core import curry, flip, co, lt, le, gt, ge, eq, attr, is_a, all_, not_a
 
 __all__ = (
     'len_lt', 'len_le', 'len_eq', 'len_gt', 'len_ge', 'is_zero', 'is_nan',
     'attr_eq', 'is_a_dict', 'is_a_list', 'is_a_tuple', 'is_a_str', 'is_a_func',
-    'is_a_int', 'is_iter', 'is_a_mapper', 'is_seq',
+    'is_a_int', 'is_iter', 'is_a_mapper', 'is_seq', 'nostr_iter', 'nostr_seq',
 )
 
 
@@ -41,4 +40,7 @@ is_a_str = is_a(AnyStr)
 is_a_func = is_a(Callable)
 is_a_int = is_a(int)
 is_iter = is_a(Iterable)
+nostr_iter = all_([is_iter, not_a((bytes, str))])
 is_seq = is_a(Sequence)
+nostr_seq = all_([is_seq, not_a((bytes, str))])
+
