@@ -1,6 +1,8 @@
+from random import choices
 from typing import Iterable, AnyStr
-from .core import (curry, bind, co, map_, chain)
+from .core import (curry, bind, co, map_, chain, repeat, always)
 from .sequence import update_range, split_before
+from string import ascii_lowercase
 
 
 __all__ = (
@@ -12,6 +14,7 @@ __all__ = (
     'strip', 'swapcase', 'title', 'translate', 'upper', 'zfill',
     # custom functions
     'first_lower', 'hex_token', 'url_safe_token', 'hex_uuid', 'camelcase', 'camelcase_to',
+    'rand_txt', 'repeat_txt', 'mask',
 )
 
 # string method curried ========================================
@@ -180,3 +183,25 @@ def camelcase_to(sep, s: AnyStr, trans_f=lower):
         chain(join('')),
         split_before(isupper)
     )(s)
+
+
+def rand_txt(length, char_set=ascii_lowercase):
+    return join('')(choices(char_set, k=length))
+
+
+@curry
+def repeat_txt(n, sub):
+    return join('', repeat(n, sub))
+
+
+@curry
+def mask(start, stop, raw: str, char='*'):
+    return co(
+        join(''),
+        update_range(always(char), start=start, stop=stop)
+    )(raw)
+
+
+@curry
+def mask_except(pre: int, suf: int, s: str, char='*'):
+    pass
