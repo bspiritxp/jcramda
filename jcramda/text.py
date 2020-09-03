@@ -1,7 +1,7 @@
 from typing import Iterable, AnyStr
-from .core import (
-    curry, bind
-)
+from .core import (curry, bind, co, map_, chain)
+from .sequence import update_range, split_before
+
 
 __all__ = (
     'capitalize', 'casefold', 'center', 'encode', 'endswith', 'expandtabs', 'find',
@@ -10,6 +10,8 @@ __all__ = (
     'ljust', 'lower', 'lstrip', 'partition', 'replace', 'rfind', 'rindex', 'rjust',
     'rpartition', 'rsplit', 'rstrip', 'scount', 'sformat', 'split', 'splitlines', 'startswith',
     'strip', 'swapcase', 'title', 'translate', 'upper', 'zfill',
+    # custom functions
+    'first_lower', 'hex_token', 'url_safe_token', 'hex_uuid', 'camelcase', 'camelcase_to',
 )
 
 # string method curried ========================================
@@ -76,7 +78,7 @@ def rfind(sub, s: str, start=None, end=None):
 
 
 @curry
-def join(sep: str, seqs: Iterable) -> str:
+def join(sep: str, seqs: Iterable):
     return sep.join([str(x) for x in seqs if x is not None])
 
 
@@ -101,12 +103,12 @@ def rindex(sub, s: str, start=None, end=None):
 
 
 @curry
-def split(sep, s: str, limit=None):
+def split(sep, s: str, limit=-1):
     return s.split(sep, limit)
 
 
 @curry
-def rsplit(sep, s: str, limit=None):
+def rsplit(sep, s: str, limit=-1):
     return s.rsplit(sep, limit)
 
 
@@ -137,6 +139,10 @@ zfill = curry(lambda length, s: s.zfill(length))
 
 
 # custom =======================================================
+def first_lower(s: str):
+    return s[0:1].lower() + s[1:]
+
+
 def hex_token(size):
     from secrets import token_hex
     return token_hex(size)
@@ -153,4 +159,24 @@ def hex_uuid():
 
 
 def camelcase(s: AnyStr):
-    pass
+    """
+    下划线转换驼峰
+    :param s:
+    :return:
+    """
+    return co(
+        first_lower,
+        join(''),
+        update_range(capitalize, start=1),
+        split('_')
+    )(s)
+
+
+@curry
+def camelcase_to(sep, s: AnyStr, trans_f=lower):
+    return co(
+        trans_f,
+        join(sep),
+        chain(join('')),
+        split_before(isupper)
+    )(s)

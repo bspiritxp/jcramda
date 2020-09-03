@@ -1,15 +1,15 @@
 import more_itertools as mil
 from typing import Iterable, MutableSequence, Reversible, Sized, Callable, Sequence
 from collections import *
-from .core import curry, between, flip, of
+from .core import curry, between, flip, of, islice
 
 __all__ = (
     'append', 'prepend', 'pop', 'shift', 'update', 'adjust', 'slices',
     'chunked', 'windowed', 'padded', 'nth_or_last', 'iterate', 'split_before',
     'split_after', 'split_at', 'split_into', 'split_when', 'distribute', 'adjacent',
-    'locate', 'lstrip', 'rstrip', 'strip', 'take', 'tabulate', 'tail', 'consume', 'nth',
+    'locate', 'lstrip_f', 'rstrip_f', 'strip_f', 'take', 'tabulate', 'tail', 'consume', 'nth',
     'all_eq', 'quantify', 'ncycles', 'find_one', 'iter_except', 'unique_set', 'grouper',
-    'partition',
+    'partition_f', 'update_range',
 )
 
 
@@ -35,6 +35,14 @@ def update(index: int, v, seqs: MutableSequence):
     if between(0, len(seqs), index):
         seqs[index] = v
     return seqs
+
+
+@curry
+def update_range(upset, seqs: Sequence, start=0, stop=None, step=1):
+    r = list(seqs)
+    for i, v in islice((start, stop, step), enumerate(r)):
+        r[i] = upset(v)
+    return r
 
 
 @curry
@@ -78,14 +86,14 @@ distribute = curry(mil.distribute)
 adjacent = curry(mil.adjacent)
 # Yield the index of each item in *iterable* for which *pred* returns ``True``
 locate = flip(mil.locate)
-lstrip = flip(mil.lstrip)
-rstrip = flip(mil.rstrip)
-strip = flip(mil.strip)
+lstrip_f = flip(mil.lstrip)
+rstrip_f = flip(mil.rstrip)
+strip_f = flip(mil.strip)
 all_eq = mil.all_equal
 quantify = flip(mil.quantify)
 ncycles = flip(mil.ncycles)
 grouper = flip(mil.grouper)
-partition = curry(mil.partition)
+partition_f = curry(mil.partition)
 unique_set = flip(mil.unique_everseen)
 iter_except = curry(mil.iter_except)
 find_one = curry(lambda f, xs: mil.first_true(xs, None, f))
