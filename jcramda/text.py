@@ -1,6 +1,7 @@
+import hashlib
 from random import choices
-from typing import Iterable, AnyStr
-from .core import (curry, bind, co, map_, chain, repeat, always)
+from typing import Iterable, AnyStr, Union
+from .core import (curry, bind, co, map_, chain, repeat, always, is_a)
 from .sequence import update_range, split_before
 from string import ascii_lowercase
 
@@ -14,7 +15,7 @@ __all__ = (
     'strip', 'swapcase', 'title', 'translate', 'upper', 'zfill',
     # custom functions
     'first_lower', 'hex_token', 'url_safe_token', 'hex_uuid', 'camelcase', 'camelcase_to',
-    'rand_txt', 'repeat_txt', 'mask',
+    'rand_txt', 'repeat_txt', 'mask', 'mask_except', 'hexdigest',
 )
 
 # string method curried ========================================
@@ -60,9 +61,8 @@ def scount(sub, s: str, start=None, end=None):
     return s.count(sub, start, end)
 
 
-@curry
-def encode(encoding, s: str, errors='ignore'):
-    return s.encode(encoding, errors)
+def encode(s: AnyStr, errors='ignore', encoding='utf8'):
+    return s.encode(encoding, errors) if is_a(str, s) else s
 
 
 @curry
@@ -203,5 +203,25 @@ def mask(start, stop, raw: str, char='*'):
 
 
 @curry
-def mask_except(pre: int, suf: int, s: str, char='*'):
-    pass
+def mask_except(_head: int, _tail: int, s: str, char='*'):
+    return s[0:_head] + repeat_txt(len(s) - _head - _tail, char) + s[-_tail:]
+
+
+@curry
+def hexdigest(algorithm, raw: AnyStr, length=32):
+    """
+    支持以下算法
+    ('md5', 'sha1', 'sha224', 'sha256', 'sha384', 'sha512', 'blake2b',
+     'blake2s', 'sha3_224', 'sha3_256', 'sha3_384', 'sha3_512', 'shake_128', 'shake_256')
+    :param algorithm:
+    :param raw:
+    :param length:
+    :return:
+    """
+    spec = bind(algorithm, encode(raw))
+    try:
+        return spec(hashlib).hexdigest()
+    except AttributeError:
+        raise RuntimeError(f'not supported algorithm: {algorithm}')
+    except TypeError:
+        return spec(hashlib).hexdigest(length)
