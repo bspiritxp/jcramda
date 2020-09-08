@@ -1,7 +1,6 @@
-import pytest
 from enum import Enum
 
-from .enumtools import *
+from jcramda.base.enumtools import *
 
 
 class DA(Enum):

@@ -1,13 +1,13 @@
 import hashlib
 from random import choices
-from typing import Iterable, AnyStr, Union
-from .core import (curry, bind, co, map_, chain, repeat, always, is_a)
-from .sequence import update_range, split_before
+from typing import Iterable, AnyStr
+from jcramda.core import (curry, bind, co, chain, repeat, always, is_a)
+from jcramda.base.sequence import update_range, split_before
 from string import ascii_lowercase
 
 
 __all__ = (
-    'capitalize', 'casefold', 'center', 'encode', 'endswith', 'expandtabs', 'find',
+    'capitalize', 'casefold', 'center', 'encode', 'endswith', 'expandtabs', 'decode', 'find',
     'format_map', 'isalnum', 'isalpha', 'isascii', 'isdecimal', 'isdigit', 'isidentifier',
     'islower', 'isnumeric', 'isprintable', 'isspace', 'istitle', 'isupper', 'join',
     'ljust', 'lower', 'lstrip', 'partition', 'replace', 'rfind', 'rindex', 'rjust',
@@ -15,7 +15,8 @@ __all__ = (
     'strip', 'swapcase', 'title', 'translate', 'upper', 'zfill',
     # custom functions
     'first_lower', 'hex_token', 'url_safe_token', 'hex_uuid', 'camelcase', 'camelcase_to',
-    'rand_txt', 'repeat_txt', 'mask', 'mask_except', 'hexdigest',
+    'rand_txt', 'repeat_txt', 'mask', 'mask_except', 'hexdigest', 'b64_encode', 'b64_decode',
+    'b64_urlsafe_encode', 'b64_urlsafe_decode',
 )
 
 # string method curried ========================================
@@ -63,6 +64,10 @@ def scount(sub, s: str, start=None, end=None):
 
 def encode(s: AnyStr, errors='ignore', encoding='utf8'):
     return s.encode(encoding, errors) if is_a(str, s) else s
+
+
+def decode(bs: AnyStr):
+    return bs.decode() if is_a(bytes, bs) else bs
 
 
 @curry
@@ -225,3 +230,43 @@ def hexdigest(algorithm, raw: AnyStr, length=32):
         raise RuntimeError(f'not supported algorithm: {algorithm}')
     except TypeError:
         return spec(hashlib).hexdigest(length)
+
+
+def b64_encode(s: AnyStr):
+    import base64
+    return co(
+        decode,
+        base64.b64encode,
+        encode,
+    )(s)
+
+
+def b64_urlsafe_encode(s: AnyStr):
+    import base64
+    return co(
+        decode,
+        base64.urlsafe_b64encode,
+        encode,
+    )(s)
+
+
+def b64_decode(s: AnyStr):
+    import base64
+    return co(
+        decode,
+        base64.b64decode,
+    )(s)
+
+
+def b64_urlsafe_decode(s: AnyStr):
+    import base64
+    return co(
+        decode,
+        base64.urlsafe_b64decode,
+    )(s)
+
+
+@curry
+def search(p, s, flags=0):
+    import re
+    return re.search(p, s, flags)

@@ -25,7 +25,7 @@ def test_each():
 
 
 def test_chain():
-    from ..sequence import append
+    from jcramda.base.sequence import append
     from .operator import add, pow_, floordiv, mul, sub
     assert chain((1,2,3), (4,5,6), (7, (8, 9))) == of(range(1, 10))
     assert of(chain(append, first, [1, 2, 3])) == (1, 2, 3, 1)

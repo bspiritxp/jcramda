@@ -4,10 +4,10 @@ Ramda mapping functions
 from collections import OrderedDict
 from typing import Iterable, Union, Any, Mapping, MutableMapping
 
-from .comparison import is_a_dict, is_a_func, is_a_int, is_a_mapper, is_simple_iter
-from .core import (curry, delitem, props, co, first, fold, each, setitem, not_a, not_none, of,
-                   all_, truth, is_a)
-from .sequence import nth
+from jcramda.base.comparison import is_a_dict, is_a_func, is_a_int, is_a_mapper, is_simple_iter
+from jcramda.core import (curry, delitem, props, co, first, fold, each, setitem, not_a, not_none, of,
+                          all_, truth, is_a)
+from jcramda.base.sequence import nth
 
 __all__ = (
     'prop',

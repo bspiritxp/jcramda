@@ -12,7 +12,8 @@ __all__ = (
     'index', 'setitem', 'attr', 'props', 'bind',
     # 'iadd', 'iand', 'iconcat', 'ifloordiv', 'ilshift', 'imod', 'imul', 'imatmul', 'ior', 'ipow',
     # 'irshift', 'isub', 'idiv', 'ixor',
-    'identity', 'when', 'always', 'if_else', 'all_', 'any_',
+    'identity', 'when', 'always', 'if_else', 'all_', 'any_', 'default_to', 'import_',
+    'from_import_as',
 )
 
 
@@ -144,3 +145,25 @@ def any_(funcs: Iterable[Callable[[Any], bool]], v):
         if f(v):
             return True
     return False
+
+
+@curry
+def default_to(df, raw):
+    return raw or df
+
+
+def import_(module_name, package=None):
+    from importlib import import_module
+    try:
+        return import_module(module_name, package)
+    except TypeError:
+        return None
+
+
+@curry
+def from_import_as(_name, from_module, package=None):
+    super_module = import_(from_module, package)
+    return getattr(super_module, _name, None)
+
+
+

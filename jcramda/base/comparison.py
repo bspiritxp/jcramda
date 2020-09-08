@@ -1,5 +1,5 @@
 from typing import Dict, List, Tuple, AnyStr, Callable, Iterable, Mapping, Sequence
-from .core import curry, flip, co, lt, le, gt, ge, eq, attr, is_a, all_, not_a
+from jcramda.core import curry, flip, co, lt, le, gt, ge, eq, attr, is_a, all_, not_a
 
 __all__ = (
     'len_lt', 'len_le', 'len_eq', 'len_gt', 'len_ge', 'is_zero', 'is_nan',

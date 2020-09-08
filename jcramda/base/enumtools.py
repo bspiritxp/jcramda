@@ -1,8 +1,8 @@
 from enum import Enum
 
-from .core import curry, co, attr, bind, index, is_a
-from .sequence import find_one, nth
-from .comparison import attr_eq
+from jcramda.core import curry, co, attr, bind, index, is_a
+from jcramda.base.sequence import find_one, nth
+from jcramda.base.comparison import attr_eq
 
 __all__ = (
     'is_enum',

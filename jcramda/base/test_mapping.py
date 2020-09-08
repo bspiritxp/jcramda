@@ -1,6 +1,6 @@
-from . import co, join
-from .core.itertools import repeat
-from .mapping import *
+from jcramda import co, join
+from jcramda.core.itertools import repeat
+from jcramda.base.mapping import *
 
 
 def test_assign():

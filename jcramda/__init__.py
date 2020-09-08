@@ -1,9 +1,5 @@
 from .core import *
-from .sequence import *
-from .mapping import *
-from .enumtools import *
-from .comparison import *
-from .text import *
+from .base import *
 
 
 _ = EmptyParam

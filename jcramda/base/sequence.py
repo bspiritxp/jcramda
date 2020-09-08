@@ -1,7 +1,7 @@
 import more_itertools as mil
 from typing import Iterable, MutableSequence, Reversible, Sized, Callable, Sequence
 from collections import *
-from .core import curry, between, flip, of, islice
+from jcramda.core import curry, between, flip, of, islice
 
 __all__ = (
     'append', 'prepend', 'pop', 'shift', 'update', 'adjust', 'slices',
