@@ -1,6 +1,7 @@
 import hashlib
+import re
 from random import choices
-from typing import Iterable, AnyStr
+from typing import Iterable, AnyStr, Optional
 from jcramda.core import (curry, bind, co, chain, repeat, always, is_a)
 from jcramda.base.sequence import update_range, split_before
 from string import ascii_lowercase
@@ -266,7 +267,14 @@ def b64_urlsafe_decode(s: AnyStr):
     )(s)
 
 
-@curry
-def search(p, s, flags=0):
-    import re
-    return re.search(p, s, flags)
+search = curry(re.search)
+match = curry(re.match)
+fullmatch = curry(re.fullmatch)
+sub = curry(re.sub)
+subn = curry(re.sub)
+finditer = curry(re.finditer)
+findall = curry(re.findall)
+regexp = re.compile
+template = re.template
+escape = re.escape
+
