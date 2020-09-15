@@ -1,8 +1,10 @@
-from typing import Iterable, Callable, Any, Union, Sized, Optional
-from functools import reduce as _reduce, partial
 import itertools as its
+from functools import reduce as _reduce
+from typing import Iterable, Callable, Any, Union
+
 from more_itertools import with_iter, intersperse as _intersperse, consume, side_effect, ilen, \
     always_reversible as reverse, replace as _replace, one as _one
+
 from ._curry import curry
 from .compose import co
 from .operator import is_a, not_a, is_none
@@ -17,9 +19,10 @@ __all__ = (
     'last',
     'maps',
     'map_',
+    'reduce_',
     'mapof',
     'starmap',
-    'each',
+    'foreach',
     'fmap',
     'fmapof',
     'filter_',
@@ -37,16 +40,18 @@ __all__ = (
     'reverse',
     'ireplace',
     'map_reduce',
+    'scan',
 )
 
 
-def of(*args):
+def of(*args, cls=tuple):
     """
     将传入的参数平铺成一个tuple
+    :param cls: 类，可以是 （tuple, list, set, etc...）或其他衍生可迭代容器类或方法，默认: tuple
     :param args: Iterable
-    :return: tuple
+    :return: cls指定的迭代类型
     """
-    return *its.chain(*[x if isinstance(x, Iterable) else [x] for x in args]),
+    return cls(its.chain(*[x if isinstance(x, Iterable) else [x] for x in args]))
 
 
 def flatten(*iters):
@@ -95,6 +100,7 @@ def maps(func, it, *args):
 
 
 map_ = maps
+reduce_ = fold
 
 
 @curry
@@ -112,7 +118,7 @@ def islice(rng: Union[int, tuple], iterate):
 
 
 @curry
-def each(func, seqs, chunk_size=None, before=None, after=None):
+def foreach(func, seqs, chunk_size=None, before=None, after=None):
     return consume(side_effect(func, seqs, chunk_size, before, after))
 
 
@@ -230,3 +236,13 @@ def ireplace(pred, sub, iterable, _count=None, window_size=1):
 def map_reduce(key: Callable, emit: Callable, iterable: Iterable, reducer: Callable = None):
     from more_itertools import map_reduce
     return map_reduce(iterable, key, emit, reducer)
+
+
+@curry
+def scan(func, init, iterable):
+    result = [init]
+    r = init
+    for x in iterable:
+        r = func(r, x)
+        result.append(r)
+    return result

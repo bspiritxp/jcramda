@@ -1,7 +1,8 @@
+from typing import Iterable, MutableSequence, Sequence, Callable
+
 import more_itertools as mil
-from typing import Iterable, MutableSequence, Reversible, Sized, Callable, Sequence
-from collections import *
-from jcramda.core import curry, between, flip, of, islice
+
+from jcramda.core import curry, between, flip, of, islice, not_none
 
 __all__ = (
     'append', 'prepend', 'pop', 'shift', 'update', 'adjust', 'slices',
@@ -9,7 +10,7 @@ __all__ = (
     'split_after', 'split_at', 'split_into', 'split_when', 'distribute', 'adjacent',
     'locate', 'lstrip_f', 'rstrip_f', 'strip_f', 'take', 'tabulate', 'tail', 'consume', 'nth',
     'all_eq', 'quantify', 'ncycles', 'find_one', 'iter_except', 'unique_set', 'grouper',
-    'partition_f', 'update_range',
+    'partition_f', 'update_range', 'drop', 'startswith', 'endswith',
 )
 
 
@@ -68,10 +69,21 @@ def padded(v, n, iterable, next_multiple=False):
 
 
 take = curry(mil.take)
+
+
+@curry
+def drop(n, seqs: Sequence):
+    return seqs.__class__(seqs[n:])
+
+
 tail = curry(mil.tail)
 tabulate = curry(mil.tabulate)
 consume = flip(mil.consume)
-nth = flip(mil.nth)
+
+
+@curry
+def nth(idx, iterable):
+    return mil.nth(iterable, int(idx))
 
 
 nth_or_last = flip(mil.nth_or_last)
@@ -98,3 +110,17 @@ unique_set = flip(mil.unique_everseen)
 iter_except = curry(mil.iter_except)
 find_one = curry(lambda f, xs: mil.first_true(xs, None, f))
 
+
+@curry
+def diff(s1: Sequence, s2: Sequence):
+    return filter(not_none, map(lambda x: x if x not in s2 else None, s1))
+
+
+@curry
+def startswith(prefix, s: Sequence, start=None, end=None):
+    return prefix == s[slice(start, end)][0:len(prefix)]
+
+
+@curry
+def endswith(suffix, s: Sequence, start=None, end=None):
+    return suffix == s[slice(start, end)][-len(suffix):]

@@ -1,11 +1,14 @@
+from more_itertools import repeatfunc
 from ..core import co, curry
 
 
 __all__ = (
     'applyto',
+    'converge',
     'juxt',
     'call_until',
-    'func_digest',
+    'f_digest',
+    'repeat_call',
 )
 
 
@@ -18,15 +21,16 @@ class applyto:
         return fn(*self._args, **self._kw)
 
 
-@curry
-def juxt(funcs, _value):
+def juxt(*funcs):
     """
     call some functions with a same param value.
     :param funcs:
-    :param _value:
     :return: a list with functions call result
     """
-    return map(applyto(_value), funcs)
+    def juxt_w(*args, **kwargs):
+        return map(applyto(*args, **kwargs), funcs)
+
+    return juxt_w
 
 
 @curry
@@ -38,8 +42,24 @@ def call_until(pred, funcs, v, *args, **kwargs):
     return None
 
 
-def func_digest(f):
+def f_digest(f):
     from inspect import signature
     from pickle import dumps
     from .text import hexdigest
     return hexdigest('sha256', dumps(signature(f)))
+
+
+@curry
+def converge(after_f, funcs, value):
+    """
+    (g, [f1, f2, ... fn], value) -> g(f1(value), f2(value), ... fn(value))
+    :param after_f: 最终处理函数
+    :param funcs: 函数列表
+    :param value: 要处理的值
+    :return:
+    """
+    return after_f(*juxt(*funcs)(value))
+
+
+repeat_call = curry(repeatfunc)
+

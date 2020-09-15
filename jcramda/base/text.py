@@ -8,11 +8,11 @@ from string import ascii_lowercase
 
 
 __all__ = (
-    'capitalize', 'casefold', 'center', 'encode', 'endswith', 'expandtabs', 'decode', 'find',
+    'capitalize', 'casefold', 'center', 'encode', 'expandtabs', 'decode', 'find',
     'format_map', 'isalnum', 'isalpha', 'isascii', 'isdecimal', 'isdigit', 'isidentifier',
     'islower', 'isnumeric', 'isprintable', 'isspace', 'istitle', 'isupper', 'join',
     'ljust', 'lower', 'lstrip', 'partition', 'replace', 'rfind', 'rindex', 'rjust',
-    'rpartition', 'rsplit', 'rstrip', 'scount', 'sformat', 'split', 'splitlines', 'startswith',
+    'rpartition', 'rsplit', 'rstrip', 'scount', 'sformat', 'split', 'splitlines',
     'strip', 'swapcase', 'title', 'translate', 'upper', 'zfill',
     # custom functions
     'first_lower', 'hex_token', 'url_safe_token', 'hex_uuid', 'camelcase', 'camelcase_to',
@@ -29,18 +29,8 @@ def replace(old_str, new_str, s, _count=-1):
 
 
 @curry
-def startswith(prefix, s: str, start=None, end=None):
-    return s.startswith(prefix, start, end)
-
-
-@curry
-def endswith(suffix, s: str, start=None, end=None):
-    return s.endswith(suffix, start, end)
-
-
-@curry
-def sformat(template: str, s, *args, **kwargs):
-    return template.format(s, *args, **kwargs)
+def sformat(tmpl: str, s, *args, **kwargs):
+    return tmpl.format(s, *args, **kwargs)
 
 
 @curry
@@ -278,3 +268,9 @@ regexp = re.compile
 template = re.template
 escape = re.escape
 
+
+# HTML ====================
+import html
+
+htmlescape = html.escape
+htmlunescape = html.unescape

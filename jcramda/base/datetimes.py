@@ -5,7 +5,6 @@ from ..core import curry, when, is_a
 
 
 __all__ = (
-    'AnyDateTime',
     'daterange',
     'format_dt',
     'fromtimestamp',

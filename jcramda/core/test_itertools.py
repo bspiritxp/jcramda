@@ -1,5 +1,6 @@
 import itertools as its
 from .itertools import *
+from ._curry import _, flip
 
 
 def test_map_and_of():
@@ -20,18 +21,18 @@ def test_each():
         idx, value = item
         result.append(idx + value)
 
-    each(each_a, enumerate((1, 2, 3)))
+    foreach(each_a, enumerate((1, 2, 3)))
     assert [1, 3, 5] == result
 
 
 def test_chain():
     from jcramda.base.sequence import append
     from .operator import add, pow_, floordiv, mul, sub
-    assert chain((1,2,3), (4,5,6), (7, (8, 9))) == of(range(1, 10))
+    assert chain((1, 2, 3), (4, 5, 6), (7, (8, 9))) == of(range(1, 10))
     assert of(chain(append, first, [1, 2, 3])) == (1, 2, 3, 1)
     assert of(chain(pow_(2))((1, 2, 3, 4))) == (1, 4, 9, 16)
     # append(head([1, 2, 3]), [1, 2, 3])
     # 3 ** (3 + 1) == 81
     assert chain(pow_, add(1), 3) == 81
     # ( 8 // ( 8 - 4 ) ) * 8
-    assert chain(mul, floordiv, sub(4))(8) == 16
+    assert chain(mul, flip(floordiv), sub(_, 4))(8) == 16

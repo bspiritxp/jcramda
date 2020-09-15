@@ -1,4 +1,4 @@
-from jcramda import co, join
+from jcramda import co, join, _
 from jcramda.core.itertools import repeat
 from jcramda.base.mapping import *
 
@@ -18,7 +18,8 @@ def test_flat_concat():
     assert {'a': 1} == flat_concat({'a': 1, 'b': []})
     assert {'a': 1, 'b': ({'c': 3},)} == flat_concat({'a': 1}, b=[{'c': 3, 'd': None}])
     assert {'a': 1, 'b': {'c': 3}} == flat_concat(dict(a=1), b={'c': 3, 'd': ()})
-    assert {'a': 1, 'c': ({'d': 5}, {'e': 6})} == flat_concat(dict(a=1), [1,2,3], dict(c=({'d': 5}, {'e': 6})))
+    assert {'a': 1, 'c': ({'d': 5}, {'e': 6})} == flat_concat(dict(a=1), [1, 2, 3],
+                                                              dict(c=({'d': 5}, {'e': 6})))
     assert flat_concat(a=1, c=6) == {'a': 1, 'c': 6}
     assert flat_concat(1, [1, 2]) == (1, 2)
     assert flat_concat(1, 'a') == {1, 'a'}
@@ -34,7 +35,7 @@ def test_prop_loc():
     assert prop('d.m')(d) == 'aa'
     assert prop('d.n', d) == 'bb'
     assert prop('d.x', d) is None
-    assert propor('d.x', 'foo')(d) == 'foo'
+    assert prop('d.x', default='foo')(d) == 'foo'
     assert loc(2)(d) == 3
     assert loc(5, d) is None
 
@@ -46,11 +47,57 @@ def test_obj():
 
 
 def test_de():
-    assert de(('a', 'b'))(dict(a=1, b=2, c=3)) == (1, 2)
-    assert de(('a', 'd'), dict(a=1, b=2, c=3)) == (1, )
-    assert de(('a', 'b', 'c'))(dict(a=1, b=2, c=[4, 5])) == (1, 2, [4, 5])
+    assert des(('a', 'b'))(dict(a=1, b=2, c=3)) == (1, 2)
+    assert des(('a', 'd'), dict(a=1, b=2, c=3)) == (1, None)
+    assert des(('a', 'b', 'c'))(dict(a=1, b=2, c=[4, 5])) == (1, 2, [4, 5])
+    assert des(('a', 'd', 'b'))(dict(a=1, b=3)) == (1, None, 3)
+
+
+def test_pick():
+    assert pickall(('a', 'b'))(dict(a=1, b=2, c=3)) == {'a': 1, 'b': 2}
+    assert pick(('a', 'b'))(dict(a=1, b=2, c=3)) == {'a': 1, 'b': 2}
+    assert pickall(('a', 'd'))(dict(a=1, b=2, c=3)) == {'a': 1, 'd': None}
+    assert pick(('a', 'd'))(dict(a=1, b=2, c=3)) == {'a': 1}
+    assert pickall(('a', 'b', 'c'))(dict(a=1, b=2, c=[4, 5], d=6)) == {'a': 1, 'b': 2, 'c': [4, 5]}
+    assert pick(('a', 'b', 'c'))(dict(a=1, b=2, c=[4, 5], d=6)) == {'a': 1, 'b': 2, 'c': [4, 5]}
+    assert pickall(('a', 'd', 'b'))(dict(a=1, b=3)) == {'a': 1, 'd': None, 'b': 3}
+    assert pick(('a', 'd', 'b'))(dict(a=1, b=3)) == {'a': 1, 'b': 3}
 
 
 def test_key_map():
     raw = dict(a=1, b=2, c=3)
     assert key_map(co(join(''), repeat(2)))(raw) == dict(aa=1, bb=2, cc=3)
+
+
+def test_map_update():
+    test_dict = {'a': 2}
+    assert map_update(lambda item: {item[0]: item[1] * 2}, {}, firstitem(test_dict)) == {'a': 4}
+
+
+def test_obj_zip():
+    assert obj_zip(('a', 'b', 'c'))((1, 2, 3)) == {'a': 1, 'b': 2, 'c': 3}
+    assert obj_zip(_, (4, 5, 6))(('b', 'c', 'd')) == {'b': 4, 'c': 5, 'd': 6}
+
+
+def test_invert():
+    assert invert({'a': 1, 'b': 2}) == {1: 'a', 2: 'b'}
+    assert invert({'a': 1, 'b': 2, 'c': 1}) == {1: ('a', 'c'), 2: 'b'}
+
+
+def test_key_tree():
+    assert key_tree({'a': 1, 'b': 2}) == ['a', 'b']
+    assert key_tree({'a': 1, 'b': {'c': 3}}) == ['a', 'b', 'b.c']
+    assert key_tree({'a': 1, 'b': {'c': [1, {'d': 5}]}}) \
+        == ['a', 'b', 'b.c', 'b.c.0', 'b.c.1', 'b.c.1.d']
+
+
+def test_path():
+    assert path('a', {'a': 1}) == 1
+    assert path('a')({'b': 3}) is None
+    assert path('a.b')({'a': {'b': 3}}) == 3
+    assert path(('a', 1, 'b'))({'a': [1, {'b': 4}]}) == 4
+    assert path('a.1.b')({'a': [1, {'b': 4}]}) == 4
+
+    assert path_eq('a.1.b', 4)(dict(a=[1, {'b': 4}]))
+    assert not path_eq('a.b', 1, {'a': {'c': 1}})
+    assert path_eq('a.1.b', lambda x: x % 2 == 0, {'a': [1, {'b': 4}]})

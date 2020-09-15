@@ -5,23 +5,24 @@ from collections import OrderedDict
 from typing import Iterable, Union, Any, Mapping, MutableMapping
 
 from jcramda.base.comparison import is_a_dict, is_a_func, is_a_int, is_a_mapper, is_simple_iter
-from jcramda.core import (curry, delitem, props, co, first, fold, each, setitem, not_a, not_none, of,
-                          all_, truth, is_a)
 from jcramda.base.sequence import nth
+from jcramda.core import (curry, delitem, co, first, fold, foreach, setitem, not_a, not_none,
+                          of, all_, truth, is_a, _, when, eq, identity)
 
 __all__ = (
     'prop',
-    'propor',
     'loc',
     'obj',
     'keys',
     'values',
     'remove',
-    'de',
+    'des',
     'map_with_keys',
     'map_update',
     'map_apply',
     'firstitem',
+    'firstvalue',
+    'firstkey',
     'obj_zip',
     'update_path',
     'key_map',
@@ -36,31 +37,27 @@ __all__ = (
     'orderby',
     'ordered_key',
     'ordered_value',
+    'pickall',
+    'pick',
+    'invert',
+    'key_tree',
+    'path',
+    'path_eq',
 )
 
 not_dict = not_a(dict)
 
 
 @curry
-def prop(prop_name: str, mapper: Mapping):
+def prop(prop_name: str, mapper: Mapping, default=None):
     result = mapper
     for key in prop_name.split('.'):
-        result = result.get(key)
-    return result
-
-
-@curry
-def propor(prop_name, default, mapper: Mapping):
-    result = mapper
-    for key in prop_name.split('.'):
-        if result is None:
-            break
         result = result.get(key, default)
     return result
 
 
 @curry
-def loc(prop_name, mapper: Mapping):
+def loc(prop_name, mapper):
     if is_a_int(prop_name):
         prop_name = nth(prop_name)(mapper)
     if hasattr(mapper, 'loc'):
@@ -84,9 +81,25 @@ def values(mapper: Mapping):
     return mapper.values()
 
 
+def items(mapper: Mapping):
+    return mapper.items()
+
+
 @curry
-def de(_keys: Iterable, mapper: Mapping):
-    return of(props(*filter(lambda k: k in mapper, _keys))(mapper))
+def des(_keys: Iterable, mapper: Mapping):
+    return of(map(loc(_, mapper), _keys))
+
+
+@curry
+def pickall(_keys: Iterable, mapper: Mapping):
+    return dict(zip(_keys, de(_keys, mapper)))
+
+
+@curry
+def pick(_keys: Iterable, mapper: Mapping):
+    return dict(
+        filter(not_none, map(lambda k: (k, loc(k, mapper)) if k in mapper else None, _keys))
+    )
 
 
 @curry
@@ -115,14 +128,16 @@ def remove(_keys: Iterable, mapper: MutableMapping):
 
 
 # (d: dict) -> d.values()[0]
-firstitem = co(first, values)
+firstitem = co(first, items)
+firstvalue = co(first, values)
+firstkey = co(first, keys)
 
 obj_zip = curry(lambda _ks, _vs: dict(zip(_ks, _vs)))
 
 
 @curry
 def update_path(_path: str, upset, d: MutableMapping):
-    paths = reversed(_path.split('.'))
+    paths = tuple(reversed(_path.split('.')))
     new_value = upset(prop(_path, d)) if is_a_func(upset) else upset
     query = fold(lambda r, k: {k: r}, {paths[0]: new_value}, paths[1:])
     d.update(query)
@@ -134,7 +149,7 @@ def key_map(fn, d: Mapping):
     if not is_a_dict(d):
         return d
     r = {}
-    each(lambda k: setitem(r, fn(k), d[k]), d.keys())
+    foreach(lambda k: setitem(r, fn(k), d[k]), d.keys())
     return r
 
 
@@ -196,12 +211,12 @@ def flat_concat(*args, **kwargs):
     if merged:
         return strip_empty(map_apply(
             lambda item: {item[0]:
-                          flat_concat(item[1]) if is_a((Mapping, list, tuple), item[1])
-                          else item[1]},
+                              flat_concat(item[1]) if is_a((Mapping, list, tuple), item[1])
+                              else item[1]},
             merged.items()
         ))
     return of(map(lambda x: flat_concat(x)
-                  if is_a((Mapping, list, tuple), x) else x, lists)) or {*filter(truth, args)}
+    if is_a((Mapping, list, tuple), x) else x, lists)) or {*filter(truth, args)}
 
 
 @curry
@@ -223,3 +238,44 @@ def orderby(key_f, d: dict, reverse=False):
 
 ordered_key = orderby(None)
 ordered_value = orderby(lambda x: x[1])
+
+
+def invert(d: Mapping):
+    """
+    invert a mapper's key and value
+    :param d:
+    :return:
+    """
+    r = {}
+    for k, v in d.items():
+        r[v] = of(r[v], k) if v in r else k
+    return r
+
+
+def key_tree(d, prefix=''):
+    result = []
+    for k, v in when(
+            (is_a_mapper, items),
+            (is_a(list), enumerate),
+            else_=[])(d):
+        key_node = f'{prefix}{k}'
+        result.append(key_node)
+        result += key_tree(v, prefix=f'{key_node}.')
+    return result
+
+
+@curry
+def path(paths: Union[str, Iterable], mapping):
+    return fold(lambda r, x: when([is_a_mapper, loc(x)], [is_a(Iterable), nth(x)])(r),
+                mapping, paths.split('.') if is_a(str, paths) else paths)
+
+
+@curry
+def path_eq(paths: Union[str, Iterable], pred, mapping):
+    check = pred if is_a_func(pred) else eq(pred)
+    return check(path(paths, mapping))
+
+
+@curry
+def pluck(key, mappers: Mapping, *args):
+    pass

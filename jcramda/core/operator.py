@@ -1,4 +1,5 @@
 import operator as _op
+from functools import reduce
 from typing import Tuple, Callable, Any, Iterable
 from itertools import islice
 from ._curry import curry, flip
@@ -6,14 +7,14 @@ from ._curry import curry, flip
 
 __all__ = (
     'lt', 'le', 'eq', 'ne', 'ge', 'gt', 'not_', 'truth', 'is_', 'is_not', 'is_a', 'not_a',
-    'not_none', 'is_none', 'between','not_in',
+    'not_none', 'is_none', 'between', 'not_in', 'cmp_range', 'clamp',
     'add', 'sub', 'and_', 'floordiv', 'div', 'inv', 'lshift', 'mod', 'mul', 'matmul',
     'neg', 'or_', 'pos', 'pow_', 'xor', 'concat', 'in_', 'countOf', 'delitem', 'getitem',
     'index', 'setitem', 'attr', 'props', 'bind',
     # 'iadd', 'iand', 'iconcat', 'ifloordiv', 'ilshift', 'imod', 'imul', 'imatmul', 'ior', 'ipow',
     # 'irshift', 'isub', 'idiv', 'ixor',
     'identity', 'when', 'always', 'if_else', 'all_', 'any_', 'default_to', 'import_',
-    'from_import_as',
+    'from_import_as', 'eq_attr', 'eq_prop',
 )
 
 
@@ -24,7 +25,34 @@ lt = flip(_op.lt)
 le = flip(_op.le)
 ge = flip(_op.ge)
 gt = flip(_op.gt)
-between = curry(lambda min_, max_, x: min_ <= x < max_)
+
+
+@curry
+def cmp_range(rng: range, v):
+    if v in rng:
+        return 0
+    return 1 if v >= range.stop else -1
+
+
+@curry
+def between(_min, _max, v):
+    """
+    _min <= v < _max
+    :param _min:
+    :param _max:
+    :param v:
+    :return:
+    """
+    return cmp_range(range(_min, _max), v) == 0
+
+
+@curry
+def clamp(_min, _max, v):
+    result = cmp_range(range(_min, _max), v)
+    if result == 0:
+        return v
+    return _min if result < 0 else _max
+
 
 # Logical ===============================
 
@@ -42,22 +70,26 @@ or_ = curry(lambda a, b: a or b)
 # Math
 
 add = curry(_op.add)
-sub = flip(_op.sub)
-floordiv = flip(_op.floordiv)
-div = flip(_op.truediv)
+sub = curry(_op.sub)
+floordiv = curry(_op.floordiv)
+div = curry(_op.truediv)
 inv = _op.inv
 lshift = flip(_op.lshift)
-mod = flip(_op.mod)
+mod = curry(_op.mod)
 mul = curry(_op.mul)
-matmul = flip(_op.matmul)
+matmul = curry(_op.matmul)
 neg = _op.neg
 pos = _op.pos
 pow_ = flip(_op.pow)
 xor = curry(_op.xor)
 
-# Sequence Base
 
-concat = curry(_op.concat)
+# Sequence Base
+@curry
+def concat(a, b, *args):
+    return reduce(_op.concat, [a, b, *args])
+
+
 in_ = curry(_op.contains)
 not_in = curry(lambda a, b: b not in a)
 countOf = flip(_op.countOf)
@@ -68,6 +100,7 @@ setitem = curry(lambda d, key, value: _op.setitem(d, key, value))
 attr = _op.attrgetter
 props = _op.itemgetter
 bind = _op.methodcaller
+
 
 # iadd = flip(_op.iadd)
 # iand = flip(_op.iand)
@@ -101,16 +134,17 @@ def identity(f, *args, **kw):
     return f
 
 
-@curry
-def when(cases: Iterable[Tuple[Callable, Any]], else_, value):
-    for f, elem in cases:
-        # noinspection PyBroadException
-        try:
-            if f(value):
-                return identity(elem, value)
-        except Exception:
-            pass
-    return identity(else_, value)
+def when(*cases: Iterable[Tuple[Callable, Any]], else_=None):
+    # noinspection PyBroadException
+    def cond(value):
+        for f, elem in cases:
+            try:
+                if f(value):
+                    return identity(elem, value)
+            except Exception:
+                continue
+        return identity(else_, value)
+    return cond
 
 
 @curry
@@ -164,6 +198,19 @@ def import_(module_name, package=None):
 def from_import_as(_name, from_module, package=None):
     super_module = import_(from_module, package)
     return getattr(super_module, _name, None)
+
+
+@curry
+def eq_attr(attr_name, o1, o2):
+    attr_getter = _op.attrgetter(attr_name)
+    return attr_getter(o1) == attr_getter(o2)
+
+
+@curry
+def eq_prop(prop_name, s1, s2):
+    proper = _op.itemgetter(prop_name)
+    return proper(s1) == proper(s2)
+
 
 
 
