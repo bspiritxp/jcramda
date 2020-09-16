@@ -140,6 +140,8 @@ def flip(f):
     :return:
     """
     @curry
+    @wraps(f)
     def flipped(a, b, *args, **kwargs):
         return f(b, a, *args, **kwargs)
-    return wraps(f)(flipped)
+    flipped.__doc__ = f'**fliped two params on head**\n{flipped.__doc__}'
+    return flipped

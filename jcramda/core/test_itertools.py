@@ -8,8 +8,8 @@ def test_map_and_of():
     assert (1, 1, 1) == of(its.repeat(1, 3))
     assert ((1, 1, 1),) == of(((1, 1, 1),))
     assert (2, 4, 6) == mapof(lambda x: x*2)([1, 2, 3])
-    assert [10, 14, 18] == list(maps(lambda x, y: (x+y)*2)([1, 2, 3], [4, 5, 6]))
-    assert [2, 4, 6] == list(maps(lambda x: x*2)((1, 2, 3)))
+    assert [10, 14, 18] == list(map_(lambda x, y: (x+y)*2)([1, 2, 3], [4, 5, 6]))
+    assert [2, 4, 6] == list(map_(lambda x: x*2)((1, 2, 3)))
     assert [1, 3, 5] == list(fmap(lambda x: [x])((1, 3, 5)))
     assert (1, 3, 5) == fmapof(lambda x: [x])((1, 3, 5))
 

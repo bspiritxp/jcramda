@@ -3,4 +3,4 @@ from .base import *
 from .factor import (Just, Nothing, Maybe)
 
 
-_ = EmptyParam
+_ = HP = EmptyParam

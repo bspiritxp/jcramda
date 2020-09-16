@@ -2,7 +2,7 @@ from typing import Iterable, MutableSequence, Sequence, Callable
 
 import more_itertools as mil
 
-from jcramda.core import curry, between, flip, of, islice, not_none
+from jcramda.core import curry, between, flip, of, islice, not_none, select, concat, co, mapof
 
 __all__ = (
     'append', 'prepend', 'pop', 'shift', 'update', 'adjust', 'slices',
@@ -10,7 +10,7 @@ __all__ = (
     'split_after', 'split_at', 'split_into', 'split_when', 'distribute', 'adjacent',
     'locate', 'lstrip_f', 'rstrip_f', 'strip_f', 'take', 'tabulate', 'tail', 'consume', 'nth',
     'all_eq', 'quantify', 'ncycles', 'find_one', 'iter_except', 'unique_set', 'grouper',
-    'partition_f', 'update_range', 'drop', 'startswith', 'endswith',
+    'partition_f', 'update_range', 'drop', 'startswith', 'endswith', 'symdiff',
 )
 
 
@@ -124,3 +124,24 @@ def startswith(prefix, s: Sequence, start=None, end=None):
 @curry
 def endswith(suffix, s: Sequence, start=None, end=None):
     return suffix == s[slice(start, end)][-len(suffix):]
+
+
+@curry
+def symdiff(func, seq1, seq2):
+    """ fetch item that func(x) just in seq1 or just in seq2
+    :param func: a function
+    :param seq1: Sequence
+    :param seq2: Sequence
+    :return tuple
+    """
+    rs1 = mapof(func, seq1)
+    rs2 = mapof(func, seq2)
+    selector = concat(
+        mapof(lambda x: x not in rs2, rs1),
+        mapof(lambda y: y not in rs1, rs2),
+    )
+    return co(
+        of,
+        select(selector),
+        concat(seq1)
+    )(seq2)

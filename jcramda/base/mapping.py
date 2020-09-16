@@ -92,7 +92,7 @@ def des(_keys: Iterable, mapper: Mapping):
 
 @curry
 def pickall(_keys: Iterable, mapper: Mapping):
-    return dict(zip(_keys, de(_keys, mapper)))
+    return dict(zip(_keys, des(_keys, mapper)))
 
 
 @curry

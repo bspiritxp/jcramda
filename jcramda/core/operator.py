@@ -7,10 +7,10 @@ from ._curry import curry, flip
 
 __all__ = (
     'lt', 'le', 'eq', 'ne', 'ge', 'gt', 'not_', 'truth', 'is_', 'is_not', 'is_a', 'not_a',
-    'not_none', 'is_none', 'between', 'not_in', 'cmp_range', 'clamp',
+    'not_none', 'is_none', 'between', 'not_in', 'cmp_range', 'clamp', 'dec',
     'add', 'sub', 'and_', 'floordiv', 'div', 'inv', 'lshift', 'mod', 'mul', 'matmul',
     'neg', 'or_', 'pos', 'pow_', 'xor', 'concat', 'in_', 'countOf', 'delitem', 'getitem',
-    'index', 'setitem', 'attr', 'props', 'bind',
+    'index', 'setitem', 'attr', 'props', 'bind', 'eq_by',
     # 'iadd', 'iand', 'iconcat', 'ifloordiv', 'ilshift', 'imod', 'imul', 'imatmul', 'ior', 'ipow',
     # 'irshift', 'isub', 'idiv', 'ixor',
     'identity', 'when', 'always', 'if_else', 'all_', 'any_', 'default_to', 'import_',
@@ -25,6 +25,11 @@ lt = flip(_op.lt)
 le = flip(_op.le)
 ge = flip(_op.ge)
 gt = flip(_op.gt)
+
+
+@curry
+def eq_by(func, a, b):
+    return func(a) == func(b)
 
 
 @curry
@@ -71,6 +76,7 @@ or_ = curry(lambda a, b: a or b)
 
 add = curry(_op.add)
 sub = curry(_op.sub)
+dec = curry(lambda a, b: b - a)
 floordiv = curry(_op.floordiv)
 div = curry(_op.truediv)
 inv = _op.inv

@@ -5,7 +5,7 @@ from typing import Iterable, Callable, Any, Union
 from more_itertools import with_iter, intersperse as _intersperse, consume, side_effect, ilen, \
     always_reversible as reverse, replace as _replace, one as _one
 
-from ._curry import curry
+from ._curry import curry, flip
 from .compose import co
 from .operator import is_a, not_a, is_none
 
@@ -13,6 +13,8 @@ __all__ = (
     'of',
     'flatten',
     'one',
+    'count',
+    'select',
     'fold',
     'chain',
     'first',
@@ -21,7 +23,6 @@ __all__ = (
     'map_',
     'reduce_',
     'mapof',
-    'starmap',
     'foreach',
     'fmap',
     'fmapof',
@@ -41,6 +42,7 @@ __all__ = (
     'ireplace',
     'map_reduce',
     'scan',
+    'groupby',
 )
 
 
@@ -93,14 +95,12 @@ def fold(func, init, it):
     """
     return _reduce(func, it, init)
 
+reduce_ = fold
+
 
 @curry
-def maps(func, it, *args):
+def map_(func, it, *args):
     return map(func, it, *args)
-
-
-map_ = maps
-reduce_ = fold
 
 
 @curry
@@ -108,8 +108,8 @@ def mapof(func, it, *args):
     return of(map(func, it, *args))
 
 
-# starmap(fun, seq) --> fun(*seq[0]), fun(*seq[1]), ...
-starmap = curry(its.starmap)
+# maps: (fun, seq) -> fun(*seq[0]), fun(*seq[1]), ...
+maps = curry(its.starmap)
 
 
 @curry
@@ -216,7 +216,7 @@ def chain(*args):
         return flatten(*args)
     seqs = of(filter(not_a(Callable), args))
     reducer = co(one, flatten,
-                 maps(lambda x: fold(lambda r, f: f(r, x), first_func(x), funcs)))
+                 map_(lambda x: fold(lambda r, f: f(r, x), first_func(x), funcs)))
 
     return reducer(seqs) if seqs else co(reducer, of)
 
@@ -246,3 +246,6 @@ def scan(func, init, iterable):
         r = func(r, x)
         result.append(r)
     return result
+
+
+select = flip(its.compress)
