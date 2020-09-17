@@ -74,7 +74,12 @@ or_ = curry(lambda a, b: a or b)
 
 # Math
 
-add = curry(_op.add)
+
+@curry
+def add(a, b):
+    return a + b
+
+
 sub = curry(_op.sub)
 dec = sub(_, 1)
 inc = add(1)
