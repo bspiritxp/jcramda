@@ -34,11 +34,9 @@ def update_args(fn, args, kws):
 
 
 def is_filled(fn: partial, spec):
-    return all((
-        _ not in fn.args,
-        len(spec.args or ()) <= len(fn.args) + len(spec.defaults or ()),
+    return _ not in fn.args and \
+        len(spec.args or ()) <= len(fn.args) + len(spec.defaults or ()) and \
         {*spec.kwonlyargs} <= {*fn.keywords, *(spec.kwonlydefaults or ())}
-    ))
 
 
 def _need_curried_f(spec):
