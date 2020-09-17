@@ -2,9 +2,18 @@ import itertools as its
 from functools import reduce as _reduce
 from typing import Iterable, Callable, Any, Union
 
-from more_itertools import with_iter, intersperse as _intersperse, consume, side_effect, ilen, \
-    always_reversible as reverse, replace as _replace, one as _one
-
+from more_itertools import (
+    with_iter,
+    intersperse as _intersperse,
+    consume,
+    side_effect,
+    ilen,
+    always_reversible as reverse,
+    replace as _replace,
+    one as _one,
+    filter_except as _fet,
+    map_except as _met,
+)
 from ._curry import curry, flip
 from .compose import co
 from .operator import is_a, not_a, is_none
@@ -21,13 +30,16 @@ __all__ = (
     'last',
     'maps',
     'map_',
+    'map_except',
     'reduce_',
     'mapof',
+    'each',
     'foreach',
     'fmap',
     'fmapof',
     'filter_',
     'filter_not',
+    'filter_except',
     'dropwhile',
     'takewhile',
     'product',
@@ -95,6 +107,7 @@ def fold(func, init, it):
     """
     return _reduce(func, it, init)
 
+
 reduce_ = fold
 
 
@@ -113,13 +126,23 @@ maps = curry(its.starmap)
 
 
 @curry
+def map_except(func, exceptions, iterable):
+    return _met(func, iterable, *exceptions)
+
+
+@curry
 def islice(rng: Union[int, tuple], iterate):
     return its.islice(iterate, *rng if isinstance(rng, tuple) else rng)
 
 
+# a side effect each: (f, seqs, chunk_size, before, after) -> seqs
+each = curry(side_effect)
+
+
 @curry
 def foreach(func, seqs, chunk_size=None, before=None, after=None):
-    return consume(side_effect(func, seqs, chunk_size, before, after))
+    consume(side_effect(func, seqs, chunk_size, before, after))
+    return seqs
 
 
 @curry
@@ -169,6 +192,25 @@ def filter_(func, seqs):
 
 
 filter_not = curry(its.filterfalse)
+
+
+@curry
+def filter_except(pred, exceptions, iterable):
+    """Yield the items from *iterable* for which the *validator* function does
+    not raise one of the specified *exceptions*.
+
+    *validator* is called for each item in *iterable*.
+    It should be a function that accepts one argument and raises an exception
+    if that item is not valid.
+
+    >>> iterable = ['1', '2', 'three', '4', None]
+    >>> of(filter_except(int, (ValueError, TypeError))(iterable))
+    ('1', '2', '4')
+
+    If an exception other than one given by *exceptions* is raised by
+    *validator*, it is raised like normal.
+    """
+    return _fet(pred, iterable, *exceptions)
 
 
 @curry

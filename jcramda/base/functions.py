@@ -1,5 +1,6 @@
-from more_itertools import repeatfunc
-from ..core import co, curry
+from more_itertools import repeatfunc, zip_equal
+from ..core import co, curry, of
+from .comparison import len_eq
 
 
 __all__ = (
@@ -9,6 +10,9 @@ __all__ = (
     'call_until',
     'f_digest',
     'repeat_call',
+    'use_with',
+    'pair_call',
+    'use_with',
 )
 
 
@@ -64,5 +68,12 @@ def converge(after_f, funcs, value):
 repeat_call = curry(repeatfunc)
 
 
+@curry
+def pair_call(funcs, v, *args):
+    values = of(v, args)
+    return map(lambda pair: pair[0](pair[1]), zip_equal(funcs, values))
 
 
+@curry
+def use_with(after_f, funcs, v, *args):
+    return after_f(*pair_call(funcs, v, *args))

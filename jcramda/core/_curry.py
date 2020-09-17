@@ -107,11 +107,10 @@ def _simple_curry(fn):
     def curried(*args, **kwargs):
         updated_fn = update_args(fn, *args, **kwargs)
         params = _get_params(updated_fn)
-        can_run = all([
-            _count_holder(updated_fn) == 0,
-            _no_fill_params(params) == 0,
-        ])
-        return updated_fn() if can_run else _simple_curry(updated_fn)
+        if not (_count_holder(updated_fn) or _no_fill_params(params)):
+            return updated_fn()
+        else:
+            return _simple_curry(updated_fn)
     curried.__curried__ = True
     return curried
 

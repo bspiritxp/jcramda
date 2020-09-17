@@ -1,4 +1,4 @@
-from ._curry import curry, _
+from jcramda.core._curry import curry, _
 
 
 @curry

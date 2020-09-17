@@ -2,15 +2,15 @@ import operator as _op
 from functools import reduce
 from typing import Tuple, Callable, Any, Iterable
 from itertools import islice
-from ._curry import curry, flip
+from ._curry import curry, flip, _
 
 
 __all__ = (
     'lt', 'le', 'eq', 'ne', 'ge', 'gt', 'not_', 'truth', 'is_', 'is_not', 'is_a', 'not_a',
-    'not_none', 'is_none', 'between', 'not_in', 'cmp_range', 'clamp', 'dec',
+    'not_none', 'is_none', 'between', 'not_in', 'cmp_range', 'clamp', 'dec', 'inc',
     'add', 'sub', 'and_', 'floordiv', 'div', 'inv', 'lshift', 'mod', 'mul', 'matmul',
     'neg', 'or_', 'pos', 'pow_', 'xor', 'concat', 'in_', 'countOf', 'delitem', 'getitem',
-    'index', 'setitem', 'attr', 'props', 'bind', 'eq_by',
+    'index', 'setitem', 'attr', 'props', 'bind', 'eq_by', 'case',
     # 'iadd', 'iand', 'iconcat', 'ifloordiv', 'ilshift', 'imod', 'imul', 'imatmul', 'ior', 'ipow',
     # 'irshift', 'isub', 'idiv', 'ixor',
     'identity', 'when', 'always', 'if_else', 'all_', 'any_', 'default_to', 'import_',
@@ -76,7 +76,8 @@ or_ = curry(lambda a, b: a or b)
 
 add = curry(_op.add)
 sub = curry(_op.sub)
-dec = curry(lambda a, b: b - a)
+dec = sub(_, 1)
+inc = add(1)
 floordiv = curry(_op.floordiv)
 div = curry(_op.truediv)
 inv = _op.inv
@@ -151,6 +152,11 @@ def when(*cases: Iterable[Tuple[Callable, Any]], else_=None):
                 continue
         return identity(else_, value)
     return cond
+
+
+@curry
+def case(cases: dict, v, default=None):
+    return identity(cases.get(v), v) or default
 
 
 @curry

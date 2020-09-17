@@ -1,4 +1,4 @@
-from typing import Iterable, MutableSequence, Sequence, Callable
+from typing import Iterable, MutableSequence, Sequence, Callable, Type
 
 import more_itertools as mil
 
@@ -10,7 +10,7 @@ __all__ = (
     'split_after', 'split_at', 'split_into', 'split_when', 'distribute', 'adjacent',
     'locate', 'lstrip_f', 'rstrip_f', 'strip_f', 'take', 'tabulate', 'tail', 'consume', 'nth',
     'all_eq', 'quantify', 'ncycles', 'find_one', 'iter_except', 'unique_set', 'grouper',
-    'partition_f', 'update_range', 'drop', 'startswith', 'endswith', 'symdiff',
+    'partition_f', 'update_range', 'drop', 'startswith', 'endswith', 'symdiff', 'zip_eq', 'diff'
 )
 
 
@@ -108,12 +108,19 @@ grouper = flip(mil.grouper)
 partition_f = curry(mil.partition)
 unique_set = flip(mil.unique_everseen)
 iter_except = curry(mil.iter_except)
+zip_eq = curry(mil.zip_equal)
 find_one = curry(lambda f, xs: mil.first_true(xs, None, f))
 
 
 @curry
 def diff(s1: Sequence, s2: Sequence):
-    return filter(not_none, map(lambda x: x if x not in s2 else None, s1))
+    s1_type: Type[Sequence] = type(s1)
+    cls = {
+        str: lambda s: ''.join(s),
+        dict: of,
+    }.get(s1_type, s1_type)
+    
+    return cls(filter(not_none, map(lambda x: x if x not in s2 else None, s1)))
 
 
 @curry

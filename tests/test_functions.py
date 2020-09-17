@@ -1,5 +1,5 @@
-from .functions import *
-from .. import concat, div
+from jcramda.base.functions import *
+from jcramda import concat, div
 
 
 def test_applyto():

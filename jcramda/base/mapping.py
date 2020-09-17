@@ -2,12 +2,12 @@
 Ramda mapping functions
 """
 from collections import OrderedDict
-from typing import Iterable, Union, Any, Mapping, MutableMapping
+from typing import Iterable, Union, Any, Mapping, MutableMapping, Dict, Callable
 
-from jcramda.base.comparison import is_a_dict, is_a_func, is_a_int, is_a_mapper, is_simple_iter
+from jcramda.base.comparison import is_a_dict, is_a_func, is_a_int, is_a_mapper, is_simple_iter, len_eq
 from jcramda.base.sequence import nth
 from jcramda.core import (curry, delitem, co, first, fold, foreach, setitem, not_a, not_none,
-                          of, all_, truth, is_a, _, when, eq, identity)
+                          of, all_, truth, is_a, _, when, eq, identity, fold, and_)
 
 __all__ = (
     'prop',
@@ -41,8 +41,11 @@ __all__ = (
     'pick',
     'invert',
     'key_tree',
+    'keys_eq',
     'path',
     'path_eq',
+    'where',
+    'where_eq',
 )
 
 not_dict = not_a(dict)
@@ -115,7 +118,7 @@ def map_update(f, d, v):
     return d
 
 
-map_with_keys = curry(lambda func, _keys, mapper: map(func, de(_keys, mapper)))
+map_with_keys = curry(lambda func, _keys, mapper: map(func, des(_keys, mapper)))
 
 # ( f: (x) -> dict, seqs: [x1, x2 ... xn] ) -> { **f(x1), **f(x2) ... **f(xn) }
 map_apply = curry(lambda f, seqs: fold(map_update(f), {}, seqs))
@@ -123,7 +126,7 @@ map_apply = curry(lambda f, seqs: fold(map_update(f), {}, seqs))
 
 @curry
 def remove(_keys: Iterable, mapper: MutableMapping):
-    each_keys(delitem, _keys, mapper)
+    foreach(lambda k: delitem(k, mapper), _keys)
     return mapper
 
 
@@ -279,3 +282,20 @@ def path_eq(paths: Union[str, Iterable], pred, mapping):
 @curry
 def pluck(key, mappers: Mapping, *args):
     pass
+
+
+@curry
+def keys_eq(d1, d2) -> bool:
+    return keys(d1) == keys(d2)
+
+
+@curry
+def where(pred: Dict[Any, Callable[[], bool]], mapping: Mapping) -> bool:
+    return all(map(lambda k: k in mapping and pred[k](mapping[k]), pred))
+
+
+@curry
+def where_eq(pred, mapping):
+    if keys_eq(pred, mapping):
+        return where(pred, mapping)
+    return False

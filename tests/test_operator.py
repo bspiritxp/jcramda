@@ -1,5 +1,5 @@
-from ._curry import _
-from .operator import *
+from jcramda.core._curry import _
+from jcramda.core.operator import *
 
 
 def test_identity():

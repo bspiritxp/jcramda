@@ -1,4 +1,4 @@
-from .sequence import *
+from jcramda.base.sequence import *
 
 
 def test_drop():
