@@ -98,8 +98,9 @@ def daterange(freq: Union[int, FreqName], start_date, **kwargs):
     :return:
     """
     from dateutil.rrule import rrule
-    return rrule(freq.value - 1 if is_a(FreqName, freq) else freq,
-                 dtstart=start_date, **kwargs)
+    value = freq.value - 1 if isinstance(freq, FreqName) else freq
+
+    return rrule(value, dtstart=start_date, **kwargs)
 
 
 

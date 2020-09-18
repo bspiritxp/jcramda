@@ -4,5 +4,3 @@ from .factor import (Just, Nothing, Maybe)
 
 
 _ = HP = EmptyParam
-
-

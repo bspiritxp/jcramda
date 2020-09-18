@@ -135,7 +135,10 @@ firstitem = co(first, items)
 firstvalue = co(first, values)
 firstkey = co(first, keys)
 
-obj_zip = curry(lambda _ks, _vs: dict(zip(_ks, _vs)))
+
+@curry
+def obj_zip(_keys: Iterable, _values: Iterable):
+    return  dict(zip(_keys, _values))
 
 
 @curry
@@ -151,7 +154,7 @@ def update_path(_path: str, upset, d: MutableMapping):
 def key_map(fn, d: Mapping):
     if not is_a_dict(d):
         return d
-    r = {}
+    r: Dict = {}
     foreach(lambda k: setitem(r, fn(k), d[k]), d.keys())
     return r
 
@@ -183,14 +186,14 @@ def sorted_by_key(key_f, d, reverse=False):
 
 
 def assign(*args: Mapping):
-    mappers = of(filter(is_a_dict, args))
+    mappers = of(*filter(is_a_dict, args))
     if not mappers:
         return {}
     return dict(zip(of(*map(keys, mappers)), of(*map(values, mappers))))
 
 
 @curry
-def mstrip(f, mapper: Mapping):
+def mstrip(f, mapper):
     return type(mapper)(filter(f, mapper.items()))
 
 
@@ -249,7 +252,7 @@ def invert(d: Mapping):
     :param d:
     :return:
     """
-    r = {}
+    r: Dict = {}
     for k, v in d.items():
         r[v] = of(r[v], k) if v in r else k
     return r
@@ -270,7 +273,7 @@ def key_tree(d, prefix=''):
 @curry
 def path(paths: Union[str, Iterable], mapping):
     return fold(lambda r, x: when([is_a_mapper, loc(x)], [is_a(Iterable), nth(x)])(r),
-                mapping, paths.split('.') if is_a(str, paths) else paths)
+                mapping, paths.split('.') if isinstance(paths, str) else paths)
 
 
 @curry
@@ -290,7 +293,7 @@ def keys_eq(d1, d2) -> bool:
 
 
 @curry
-def where(pred: Dict[Any, Callable[[], bool]], mapping: Mapping) -> bool:
+def where(pred: Dict[Any, Callable[[Any], bool]], mapping: Mapping) -> bool:
     return all(map(lambda k: k in mapping and pred[k](mapping[k]), pred))
 
 

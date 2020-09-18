@@ -54,11 +54,15 @@ def scount(rs, s: str, start=None, end=None):
 
 
 def encode(s: AnyStr, errors='ignore', encoding='utf8'):
-    return s.encode(encoding, errors) if is_a(str, s) else s
+    if isinstance(s, str):
+        return s.encode(encoding, errors)
+    return s
 
 
 def decode(bs: AnyStr):
-    return bs.decode() if is_a(bytes, bs) else bs
+    if isinstance(bs, bytes):
+        return bs.decode()
+    return bs
 
 
 @curry

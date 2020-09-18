@@ -24,6 +24,9 @@ def test_each():
     foreach(each_a, enumerate((1, 2, 3)))
     assert [1, 3, 5] == result
 
+    foreach(each_a)(enumerate((4, 5, 6)))
+    assert [1, 3, 5, 4, 6, 8] == result
+
 
 def test_chain():
     from jcramda.base.sequence import append
@@ -37,3 +40,24 @@ def test_chain():
     assert chain(pow_, add(1), 3) == 81
     # ( 8 // ( 8 - 4 ) ) * 8
     assert chain(mul, flip(floordiv), sub(_, 4))(8) == 16
+
+
+def test_filter():
+    iterable = range(1, 100)
+    assert of(filter_(None)([1, 2, 3, None, 4])) == (1, 2, 3, 4)
+    assert of(filter_not(None)([1, 2, 3, None, 4])) == (None,)
+    assert of(filter_not(lambda x: x > 90)(iterable)) == of(range(1, 91))
+    assert of(filter_except(int, (TypeError, ValueError))(
+        [1, 'a', '2', 0.5, None, {1}])) == (1, '2', 0.5)
+
+
+def test_first():
+    from itertools import count as _c
+    assert first([1, 2, 3]) == 1
+    assert first(_c(5)) == 5
+    assert first('eaasdfasdf') == 'e'
+    assert first(()) is None
+
+
+def test_select():
+    assert of(select([1, 0, 1, 1, 0])(range(1, 6))) == (1, 3, 4)

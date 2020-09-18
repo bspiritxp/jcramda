@@ -1,8 +1,8 @@
-from typing import Iterable, MutableSequence, Sequence, Callable, Type
+from typing import Iterable, MutableSequence, Sequence, Callable, Type, Optional, Any
 
 import more_itertools as mil
 
-from jcramda.core import curry, between, flip, of, islice, not_none, select, concat, co, mapof
+from jcramda.core import curry, between, flip, of, islice, not_none, concat, co, mapof, select
 
 __all__ = (
     'append', 'prepend', 'pop', 'shift', 'update', 'adjust', 'slices',
@@ -114,13 +114,7 @@ find_one = curry(lambda f, xs: mil.first_true(xs, None, f))
 
 @curry
 def diff(s1: Sequence, s2: Sequence):
-    s1_type: Type[Sequence] = type(s1)
-    cls = {
-        str: lambda s: ''.join(s),
-        dict: of,
-    }.get(s1_type, s1_type)
-    
-    return cls(filter(not_none, map(lambda x: x if x not in s2 else None, s1)))
+    return of(filter(None, map(lambda x: x if x not in s2 else None, s1)))
 
 
 @curry
