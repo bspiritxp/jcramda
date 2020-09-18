@@ -81,14 +81,14 @@ def add(a, b):
     return a + b
 
 
-sub = curry(_op.sub)
-dec = sub(_, 1)
+sub = flip(_op.sub)
+dec = sub(1)
 inc = add(1)
-floordiv = curry(_op.floordiv)
-div = curry(_op.truediv)
+floordiv = flip(_op.floordiv)
+div = flip(_op.truediv)
 inv = _op.inv
 lshift = flip(_op.lshift)
-mod = curry(_op.mod)
+mod = flip(_op.mod)
 mul = curry(_op.mul)
 matmul = curry(_op.matmul)
 neg = _op.neg

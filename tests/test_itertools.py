@@ -39,7 +39,7 @@ def test_chain():
     # 3 ** (3 + 1) == 81
     assert chain(pow_, add(1), 3) == 81
     # ( 8 // ( 8 - 4 ) ) * 8
-    assert chain(mul, flip(floordiv), sub(_, 4))(8) == 16
+    assert chain(mul, flip(floordiv), sub(4))(8) == 16
 
 
 def test_filter():

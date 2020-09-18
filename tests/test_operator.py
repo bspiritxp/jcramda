@@ -38,10 +38,10 @@ def test_always():
 
 def test_base():
     assert add(3, 4) == add(3)(4) == 7
-    assert sub(8, 2) == sub(8)(2) == sub(_, 2)(8) == 6
-    assert floordiv(5, 2) == floordiv(5)(2) == floordiv(_, 2)(5) == 2
-    assert div(4, 2) == div(4)(2) == div(_, 2)(4) == 2
-    assert mod(10, 3) == mod(10)(3) == mod(_, 3)(10) == 1
+    assert sub(2, 8) == sub(2)(8) == sub(_, 8)(2) == 6
+    assert floordiv(2, 5) == floordiv(2)(5) == floordiv(_, 5)(2) == 2
+    assert div(2, 4) == div(2)(4) == div(_, 4)(2) == 2
+    assert mod(3, 10) == mod(10)(3) == mod(_, 3)(10) == 1
     assert mul(2, 3) == mul(2)(3) == 6
     assert or_(True)(False) is True
     assert and_(True)(False) is False

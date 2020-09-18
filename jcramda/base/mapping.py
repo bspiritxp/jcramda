@@ -46,6 +46,7 @@ __all__ = (
     'path_eq',
     'where',
     'where_eq',
+    'pluck',
 )
 
 not_dict = not_a(dict)
@@ -186,7 +187,7 @@ def sorted_by_key(key_f, d, reverse=False):
 
 
 def assign(*args: Mapping):
-    mappers = of(*filter(is_a_dict, args))
+    mappers = of(filter(is_a_dict, args))
     if not mappers:
         return {}
     return dict(zip(of(*map(keys, mappers)), of(*map(values, mappers))))
@@ -283,8 +284,8 @@ def path_eq(paths: Union[str, Iterable], pred, mapping):
 
 
 @curry
-def pluck(key, mappers: Mapping, *args):
-    pass
+def pluck(key, mapper: Mapping, *args):
+    return map(prop(key), mapper, *args)
 
 
 @curry

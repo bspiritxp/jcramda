@@ -135,4 +135,5 @@ dmypy.json
 .log
 .png
 .pyc
+out/
 
