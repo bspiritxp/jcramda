@@ -9,16 +9,17 @@ __all__ = (
     'lt', 'le', 'eq', 'ne', 'ge', 'gt', 'not_', 'truth', 'is_', 'is_not', 'is_a', 'not_a',
     'not_none', 'is_none', 'between', 'not_in', 'cmp_range', 'clamp', 'dec', 'inc',
     'add', 'sub', 'and_', 'floordiv', 'div', 'inv', 'lshift', 'mod', 'mul', 'matmul',
-    'neg', 'or_', 'pos', 'pow_', 'xor', 'concat', 'in_', 'countOf', 'delitem', 'getitem',
-    'index', 'setitem', 'attr', 'props', 'bind', 'eq_by', 'case',
+    'neg', 'or_', 'pos', 'pow_', 'xor', 'concat', 'in_', 'countof', 'delitem', 'getitem',
+    'index', 'setitem', 'attr', 'props', 'bind', 'eq_by', 'case', 'indexall',
     # 'iadd', 'iand', 'iconcat', 'ifloordiv', 'ilshift', 'imod', 'imul', 'imatmul', 'ior', 'ipow',
     # 'irshift', 'isub', 'idiv', 'ixor',
     'identity', 'when', 'always', 'if_else', 'all_', 'any_', 'default_to', 'import_',
-    'from_import_as', 'eq_attr', 'eq_prop',
+    'from_import_as', 'eq_attr', 'eq_prop', 'has_attr',
 )
 
 
 # Comparison ===========================
+
 eq = curry(_op.eq)
 ne = curry(_op.ne)
 lt = flip(_op.lt)
@@ -104,7 +105,7 @@ def concat(a, b, *args):
 
 in_ = curry(_op.contains)
 not_in = curry(lambda a, b: b not in a)
-countOf = flip(_op.countOf)
+countof = flip(_op.countOf)
 delitem = flip(_op.delitem)
 getitem = flip(_op.getitem)
 setitem = curry(lambda d, key, value: _op.setitem(d, key, value))
@@ -137,6 +138,15 @@ def index(x, xs, start=0, end=None):
         return _op.indexOf(islice(xs, start, end), x)
     except ValueError:
         return None
+
+
+@curry
+def indexall(x, xs, start=0, end=None):
+    result = []
+    for i, v in enumerate(islice(xs, start, end)):
+        if v == x:
+            result.append(i)
+    return iter(result)
 
 
 @curry
@@ -229,5 +239,7 @@ def eq_prop(prop_name, s1, s2):
     return proper(s1) == proper(s2)
 
 
-
+@curry
+def has_attr(attr_name, obj):
+    return hasattr(obj, attr_name)
 

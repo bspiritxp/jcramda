@@ -29,6 +29,7 @@ def test_chain():
     from jcramda.base.sequence import append
     from jcramda.core.operator import add, pow_, floordiv, mul, sub
     assert chain((1, 2, 3), (4, 5, 6), (7, (8, 9))) == of(range(1, 10))
+    assert of(chain((1, 2, 3), _)((4, 5))) == (1, 2, 3, 4, 5)
     assert of(chain(append, first, [1, 2, 3])) == (1, 2, 3, 1)
     assert of(chain(pow_(2))((1, 2, 3, 4))) == (1, 4, 9, 16)
     # append(head([1, 2, 3]), [1, 2, 3])

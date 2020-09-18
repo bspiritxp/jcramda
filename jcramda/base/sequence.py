@@ -73,7 +73,7 @@ take = curry(mil.take)
 
 @curry
 def drop(n, seqs: Sequence):
-    return seqs.__class__(seqs[n:])
+    return seqs[n:]
 
 
 tail = curry(mil.tail)

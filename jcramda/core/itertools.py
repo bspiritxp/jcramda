@@ -1,6 +1,6 @@
 import itertools as its
 from functools import reduce as _reduce
-from typing import Iterable, Callable, Any, Union
+from typing import Iterable, Callable, Any, Union, Tuple
 
 from more_itertools import (
     with_iter,
@@ -58,6 +58,8 @@ __all__ = (
 )
 
 
+# noinspection PyArgumentList
+@curry
 def of(*args, cls=tuple):
     """
     将传入的参数平铺成一个tuple
@@ -65,14 +67,17 @@ def of(*args, cls=tuple):
     :param args: Iterable
     :return: cls指定的迭代类型
     """
-    return cls(its.chain(*[x if isinstance(x, Iterable) else [x] for x in args]))
+    return cls(
+        its.chain(*[x if isinstance(x, Iterable) else [x] for x in args])
+    )
 
 
-def flatten(*iters):
-    if len(iters) == 1 and not_a(Iterable, iters[0]):
-        return iters[0]
+@curry
+def flatten(*args):
+    if len(args) == 1 and not_a(Iterable, args[0]):
+        return args[0]
     from more_itertools import collapse
-    return *collapse(iters),
+    return *collapse(args),
 
 
 def one(iterable):
@@ -131,8 +136,8 @@ def map_except(func, exceptions, iterable):
 
 
 @curry
-def islice(rng: Union[int, tuple], iterate):
-    return its.islice(iterate, *rng if isinstance(rng, tuple) else rng)
+def islice(rng: Tuple[int], iterate):
+    return its.islice(iterate, *rng)
 
 
 # a side effect each: (f, seqs, chunk_size, before, after) -> seqs
@@ -214,8 +219,13 @@ def filter_except(pred, exceptions, iterable):
 
 
 @curry
-def product(func, matrix):
-    return map(func, its.product(*matrix))
+def product(iter1, iter2, *args, r=1):
+    return its.product(iter1, iter2, *args, repeat=r)
+
+
+@curry
+def product_map(func, iter1, iter2, *args):
+    return map(func, its.product(iter1, iter2, *args))
 
 
 @curry
@@ -251,12 +261,13 @@ def groupby(func, iterable):
     return its.groupby(iterable, func),
 
 
+@curry
 def chain(*args):
     funcs = reverse(filter(is_a(Callable), args))
     first_func = first(funcs)
     if is_none(first_func):
         return flatten(*args)
-    seqs = of(filter(not_a(Callable), args))
+    seqs = of(filter_not(is_a(Callable), args))
     reducer = co(one, flatten,
                  map_(lambda x: fold(lambda r, f: f(r, x), first_func(x), funcs)))
 
@@ -275,7 +286,7 @@ def ireplace(pred, sub, iterable, _count=None, window_size=1):
 
 
 @curry
-def map_reduce(key: Callable, emit: Callable, iterable: Iterable, reducer: Callable = None):
+def map_reduce(key: Callable, iterable: Iterable, emit=None, reducer=None):
     from more_itertools import map_reduce
     return map_reduce(iterable, key, emit, reducer)
 
@@ -287,7 +298,7 @@ def scan(func, init, iterable):
     for x in iterable:
         r = func(r, x)
         result.append(r)
-    return result
+    return iter(result)
 
 
 select = flip(its.compress)

@@ -1,7 +1,7 @@
 import hashlib
 import re
 from random import choices
-from typing import Iterable, AnyStr, Optional
+from typing import Iterable, AnyStr
 from jcramda.core import (curry, bind, co, chain, repeat, always, is_a)
 from jcramda.base.sequence import update_range, split_before
 from string import ascii_lowercase
@@ -49,8 +49,8 @@ def rstrip(s: str, chars=None):
 
 
 @curry
-def scount(sub, s: str, start=None, end=None):
-    return s.count(sub, start, end)
+def scount(rs, s: str, start=None, end=None):
+    return s.count(rs, start, end)
 
 
 def encode(s: AnyStr, errors='ignore', encoding='utf8'):
@@ -67,13 +67,13 @@ def expandtabs(tab_size, s: str):
 
 
 @curry
-def find(sub, s: str, start=None, end=None):
-    return s.find(sub, start, end)
+def find(rs, s: str, start=None, end=None):
+    return s.find(rs, start, end)
 
 
 @curry
-def rfind(sub, s: str, start=None, end=None):
-    return s.rfind(sub, start, end)
+def rfind(rs, s: str, start=None, end=None):
+    return s.rfind(rs, start, end)
 
 
 @curry

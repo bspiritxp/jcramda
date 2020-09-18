@@ -57,7 +57,7 @@ def test_seq():
     assert concat('abc')('def', 'g') == 'abcdefg'
     assert in_(_, 3)((1, 2, 3,)) == in_((1, 2, 3))(3)
     assert not_in(_, 3)((1, 2, 4)) == not_in((1, 2, 4))(3)
-    assert countOf(3)((1, 2, 3)) == 1
+    assert countof(3)((1, 2, 3)) == 1
     assert getitem(3)((1, 2, 3, 4)) == 4
     assert index(3)((3, 2, 1, 3)) == 0
 

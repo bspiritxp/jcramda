@@ -101,7 +101,7 @@ def pickall(_keys: Iterable, mapper: Mapping):
 @curry
 def pick(_keys: Iterable, mapper: Mapping):
     return dict(
-        filter(not_none, map(lambda k: (k, loc(k, mapper)) if k in mapper else None, _keys))
+        filter(None, map(lambda k: (k, loc(k, mapper)) if k in mapper else None, _keys))
     )
 
 
