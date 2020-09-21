@@ -1,4 +1,4 @@
-from jcramda.base.functions import *
+from jcramda.base import *
 from jcramda import concat, div
 
 
@@ -21,5 +21,5 @@ def test_juxt():
 
 def test_converge():
     from jcramda.base.text import upper, lower
-    assert converge(div, [sum, len])(range(1, 8)) == 4
+    assert converge(div, [len, sum])(range(1, 8)) == 4
     assert converge(concat, [upper, lower])('Ladf') == 'LADFladf'

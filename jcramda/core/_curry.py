@@ -1,7 +1,7 @@
+from abc import ABCMeta
 from inspect import signature, Parameter, getfullargspec, FullArgSpec
 from functools import wraps, partial
-from typing import Callable, List
-
+from typing import Callable, List, TypeVar
 
 __all__ = (
     'EmptyParam',
@@ -79,3 +79,5 @@ def flip(f):
         return f(b, a, *args, **kwargs)
     flipped.__doc__ = f'**fliped two params on head**\n{flipped.__doc__}'
     return flipped
+
+

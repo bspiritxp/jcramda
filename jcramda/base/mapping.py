@@ -163,7 +163,7 @@ def key_map(fn, d: Mapping):
 @curry
 def trans_keys(key_fn, d, deep=False):
     if is_simple_iter(d):
-        result = [trans_keys(key_fn, item, deep) if is_a_dict(item) else item for item in d]
+        result = (trans_keys(key_fn, item, deep) if is_a_dict(item) else item for item in d)
     elif is_a_dict(d):
         result = key_map(key_fn, d)
     else:

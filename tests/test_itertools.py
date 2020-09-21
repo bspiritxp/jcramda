@@ -1,6 +1,5 @@
 import itertools as its
-from jcramda.core.itertools import *
-from jcramda.core import _, flip
+from jcramda.core import *
 
 
 def test_map_and_of():
@@ -30,16 +29,18 @@ def test_each():
 
 def test_chain():
     from jcramda.base.sequence import append
-    from jcramda.core.operator import add, pow_, floordiv, mul, sub
+    from jcramda.core import add, pow_, floordiv, mul, sub, _
     assert chain((1, 2, 3), (4, 5, 6), (7, (8, 9))) == of(range(1, 10))
     assert of(chain((1, 2, 3), _)((4, 5))) == (1, 2, 3, 4, 5)
+    assert of(chain(append, first)([1, 2, 3])) == (1, 2, 3, 1)
     assert of(chain(append, first, [1, 2, 3])) == (1, 2, 3, 1)
-    assert of(chain(pow_(2))((1, 2, 3, 4))) == (1, 4, 9, 16)
+    assert chain(pow_(2))(3, 4, 5) == (9, 16, 25)
+    assert chain(pow_(2), (3, 4, 5)) == (9, 16, 25)
     # append(head([1, 2, 3]), [1, 2, 3])
     # 3 ** (3 + 1) == 81
     assert chain(pow_, add(1), 3) == 81
     # ( 8 // ( 8 - 4 ) ) * 8
-    assert chain(mul, flip(floordiv), sub(4))(8) == 16
+    assert chain(mul, floordiv, sub(4))(8) == 16
 
 
 def test_filter():

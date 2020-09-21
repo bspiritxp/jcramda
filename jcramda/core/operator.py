@@ -100,7 +100,7 @@ xor = curry(_op.xor)
 # Sequence Base
 @curry
 def concat(a, b, *args):
-    return reduce(_op.concat, [a, b, *args])
+    return reduce(_op.concat, (a, b, *args))
 
 
 in_ = curry(_op.contains)
@@ -180,7 +180,7 @@ def always(x, _):
 
 
 @curry
-def if_else(p: Iterable[Callable], value):
+def if_else(p: Tuple[Callable, Callable, Callable], value):
     pred, success, failed = p
     return success(value) if pred(value) else failed(value)
 

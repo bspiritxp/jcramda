@@ -1,6 +1,6 @@
 import itertools as its
 from functools import reduce as _reduce
-from typing import Iterable, Callable, Any, Union, Tuple
+from typing import Iterable, Callable, Tuple
 
 from more_itertools import (
     with_iter,
@@ -14,14 +14,19 @@ from more_itertools import (
     filter_except as _fet,
     map_except as _met,
 )
+
+from .operator import is_a
 from ._curry import curry, flip
 from .compose import co
-from .operator import is_a, not_a, is_none
+
 
 __all__ = (
+    'aof',
     'of',
+    'iof',
     'flatten',
     'one',
+    'cycle',
     'count',
     'select',
     'fold',
@@ -58,6 +63,15 @@ __all__ = (
 )
 
 
+@curry
+def aof(*args):
+    return *args,
+
+
+def iof(iterable: Iterable) -> tuple:
+    return tuple(x for x in iterable)
+
+
 # noinspection PyArgumentList
 @curry
 def of(*args, cls=tuple):
@@ -74,7 +88,7 @@ def of(*args, cls=tuple):
 
 @curry
 def flatten(*args):
-    if len(args) == 1 and not_a(Iterable, args[0]):
+    if len(args) == 1 and not isinstance(args[0], Iterable):
         return args[0]
     from more_itertools import collapse
     return *collapse(args),
@@ -82,7 +96,7 @@ def flatten(*args):
 
 def one(iterable):
     """ 如果传入的迭代器仅有一个元素，则返回这个元素，否则返回迭代器的结果（Tuple） """
-    r = tuple(iterable) if is_a(Iterable, iterable) else iterable
+    r = tuple(iterable) if isinstance(iterable, Iterable) else iterable
     try:
         return _one(r)
     except (TypeError, IndexError, ValueError):
@@ -148,28 +162,6 @@ each = curry(side_effect)
 def foreach(func, seqs, chunk_size=None, before=None, after=None):
     consume(side_effect(func, seqs, chunk_size, before, after))
     return seqs
-
-
-@curry
-def count(func: Callable[[int], Any],
-          end: Union[int, Callable[[int, Any], bool]],
-          start=0, step=1):
-    """
-    统计函数的执行次数
-    :param func: 要执行的函数，参数传入当前次数
-    :param end: 结束控制
-        int: 根据次数控制，i < end
-        (int, f(i)) -> bool: 返回True则中断
-    :param start: 计数开始数，默认0
-    :param step: 步长，默认1
-    :return: int 执行次数
-    """
-    for i in its.count(start, step):
-        if isinstance(end, int) and i >= end:
-            return i
-        r = func(i)
-        if isinstance(end, Callable) and end(i, r):
-            return i
 
 
 @curry
@@ -263,15 +255,17 @@ def groupby(func, iterable):
 
 @curry
 def chain(*args):
-    funcs = reverse(filter(is_a(Callable), args))
+    funcs = iof(reverse(filter(is_a(Callable), args)))
     first_func = first(funcs)
-    if is_none(first_func):
+    if first_func is None:
         return flatten(*args)
-    seqs = of(filter_not(is_a(Callable), args))
+    seqs = iof(filter_not(is_a(Callable), args))
     reducer = co(one, flatten,
-                 map_(lambda x: fold(lambda r, f: f(r, x), first_func(x), funcs)))
+                 map_(lambda x: fold(lambda r, f: f(r, x), first_func(x), funcs[1:])),
+                 aof
+                 ) if len(funcs) > 1 else co(map_(first_func), of)
 
-    return reducer(seqs) if seqs else co(reducer, of)
+    return reducer(seqs) if seqs else reducer
 
 
 # 等距插入固定元素 (e, iterable, n=1) -> Iterable
@@ -302,3 +296,6 @@ def scan(func, init, iterable):
 
 
 select = flip(its.compress)
+count = curry(its.count)
+cycle = its.cycle
+
