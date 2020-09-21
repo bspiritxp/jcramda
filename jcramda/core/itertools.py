@@ -259,13 +259,11 @@ def chain(*args):
     first_func = first(funcs)
     if first_func is None:
         return flatten(*args)
-    seqs = iof(filter_not(is_a(Callable), args))
-    reducer = co(one, flatten,
-                 map_(lambda x: fold(lambda r, f: f(r, x), first_func(x), funcs[1:])),
-                 aof
-                 ) if len(funcs) > 1 else co(map_(first_func), of)
+    return co(one, flatten,
+              map_(lambda x: fold(lambda r, f: f(r, x), first_func(x), funcs[1:])),
+              aof
+           )
 
-    return reducer(seqs) if seqs else reducer
 
 
 # 等距插入固定元素 (e, iterable, n=1) -> Iterable
