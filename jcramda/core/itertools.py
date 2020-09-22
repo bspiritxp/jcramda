@@ -19,11 +19,9 @@ from .operator import is_a
 from ._curry import curry, flip
 from .compose import co
 
-
 __all__ = (
     'aof',
     'of',
-    'iof',
     'flatten',
     'one',
     'cycle',
@@ -66,10 +64,6 @@ __all__ = (
 @curry
 def aof(*args):
     return *args,
-
-
-def iof(iterable: Iterable) -> tuple:
-    return tuple(x for x in iterable)
 
 
 # noinspection PyArgumentList
@@ -255,15 +249,14 @@ def groupby(func, iterable):
 
 @curry
 def chain(*args):
-    funcs = iof(reverse(filter(is_a(Callable), args)))
+    funcs = tuple(reverse(filter(is_a(Callable), args)))
     first_func = first(funcs)
     if first_func is None:
         return flatten(*args)
     return co(one, flatten,
               map_(lambda x: fold(lambda r, f: f(r, x), first_func(x), funcs[1:])),
-              aof
-           )
-
+              aof,
+              )
 
 
 # 等距插入固定元素 (e, iterable, n=1) -> Iterable
@@ -296,4 +289,3 @@ def scan(func, init, iterable):
 select = flip(its.compress)
 count = curry(its.count)
 cycle = its.cycle
-

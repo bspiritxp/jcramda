@@ -4,7 +4,8 @@ Ramda mapping functions
 from collections import OrderedDict
 from typing import Iterable, Union, Any, Mapping, MutableMapping, Dict, Callable
 
-from jcramda.base.comparison import is_a_dict, is_a_func, is_a_int, is_a_mapper, is_simple_iter, len_eq
+from jcramda.base.comparison import is_a_dict, is_a_func, is_a_int, is_a_mapper, is_simple_iter, \
+    len_eq
 from jcramda.base.sequence import nth
 from jcramda.core import (curry, delitem, co, first, fold, foreach, setitem, not_a, not_none,
                           of, all_, truth, is_a, _, when, eq, identity, fold, and_)
@@ -139,7 +140,7 @@ firstkey = co(first, keys)
 
 @curry
 def obj_zip(_keys: Iterable, _values: Iterable):
-    return  dict(zip(_keys, _values))
+    return dict(zip(_keys, _values))
 
 
 @curry
@@ -217,13 +218,14 @@ def flat_concat(*args, **kwargs):
     merged = assign(*dicts, kwargs)
     if merged:
         return strip_empty(map_apply(
-            lambda item: {item[0]:
-                              flat_concat(item[1]) if is_a((Mapping, list, tuple), item[1])
-                              else item[1]},
+            lambda item: {
+                item[0]: flat_concat(item[1])
+                if is_a((Mapping, list, tuple), item[1]) else item[1]
+            },
             merged.items()
         ))
     return of(map(lambda x: flat_concat(x)
-    if is_a((Mapping, list, tuple), x) else x, lists)) or {*filter(truth, args)}
+              if is_a((Mapping, list, tuple), x) else x, lists)) or {*filter(truth, args)}
 
 
 @curry

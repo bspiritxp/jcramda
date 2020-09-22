@@ -7,7 +7,7 @@ from jcramda.core import curry, between, flip, of, islice, not_none, concat, co,
 __all__ = (
     'append', 'prepend', 'pop', 'shift', 'update', 'adjust', 'slices',
     'chunked', 'windowed', 'padded', 'nth_or_last', 'iterate', 'split_before',
-    'split_after', 'split_at', 'split_into', 'split_when', 'distribute', 'adjacent',
+    'split_after', 'split_at', 'split_into', 'split_when', 'distribute', 'adjacent', 'dotproduct',
     'locate', 'lstrip_f', 'rstrip_f', 'strip_f', 'take', 'tabulate', 'tail', 'consume', 'nth',
     'all_eq', 'quantify', 'ncycles', 'find_one', 'iter_except', 'unique_set', 'grouper',
     'partition_f', 'update_range', 'drop', 'startswith', 'endswith', 'symdiff', 'zip_eq', 'diff'
@@ -23,8 +23,8 @@ def prepend(x, seqs: Iterable):
     return of(x, seqs)
 
 
-def pop(seqs: MutableSequence):
-    return seqs.pop()
+def pop(seqs: MutableSequence, index=0):
+    return seqs.pop(index)
 
 
 def shift(seqs: MutableSequence):
@@ -72,8 +72,8 @@ take = curry(mil.take)
 
 
 @curry
-def drop(n, seqs: Sequence):
-    return seqs[n:]
+def drop(n: int, seqs: Sequence):
+    return tuple(seqs[n:])
 
 
 tail = curry(mil.tail)
@@ -96,6 +96,7 @@ split_when = flip(mil.split_when)
 split_into = flip(mil.split_into)
 distribute = curry(mil.distribute)
 adjacent = curry(mil.adjacent)
+dotproduct = curry(mil.dotproduct)
 # Yield the index of each item in *iterable* for which *pred* returns ``True``
 locate = flip(mil.locate)
 lstrip_f = flip(mil.lstrip)
@@ -106,7 +107,7 @@ quantify = flip(mil.quantify)
 ncycles = flip(mil.ncycles)
 grouper = flip(mil.grouper)
 partition_f = curry(mil.partition)
-unique_set = flip(mil.unique_everseen)
+unique_set = curry(mil.unique_everseen)
 iter_except = curry(mil.iter_except)
 zip_eq = curry(mil.zip_equal)
 find_one = curry(lambda f, xs: mil.first_true(xs, None, f))
