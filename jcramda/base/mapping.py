@@ -4,11 +4,10 @@ Ramda mapping functions
 from collections import OrderedDict
 from typing import Iterable, Union, Any, Mapping, MutableMapping, Dict, Callable
 
-from jcramda.base.comparison import is_a_dict, is_a_func, is_a_int, is_a_mapper, is_simple_iter, \
-    len_eq
+from jcramda.base.comparison import is_a_dict, is_a_func, is_a_int, is_a_mapper, is_simple_iter
 from jcramda.base.sequence import nth
-from jcramda.core import (curry, delitem, co, first, fold, foreach, setitem, not_a, not_none,
-                          of, all_, truth, is_a, _, when, eq, identity, fold, and_)
+from jcramda.core import (curry, delitem, co, first, foreach, setitem, not_a, not_none,
+                          of, all_, truth, is_a, _, when, eq, fold, mapof, filter_, filter_of)
 
 __all__ = (
     'prop',
@@ -103,7 +102,8 @@ def pickall(_keys: Iterable, mapper: Mapping):
 @curry
 def pick(_keys: Iterable, mapper: Mapping):
     return dict(
-        filter(None, map(lambda k: (k, loc(k, mapper)) if k in mapper else None, _keys))
+        # filter(None, map(lambda k: (k, loc(k, mapper)) if k in mapper else None, _keys))
+        ((k, loc(k, mapper)) for k in _keys if k in mapper)
     )
 
 
@@ -187,20 +187,23 @@ def sorted_by_key(key_f, d, reverse=False):
     return OrderedDict(sorted(d.items(), key=key_f, reverse=reverse))
 
 
-def assign(*args: Mapping):
-    mappers = of(filter(is_a_dict, args))
+def assign(*args):
+    mappers = filter_of(is_a_dict, args)
     if not mappers:
         return {}
-    return dict(zip(of(*map(keys, mappers)), of(*map(values, mappers))))
+    return dict(zip(mapof(keys, mappers), mapof(values, mappers)))
 
 
 @curry
 def mstrip(f, mapper):
-    return type(mapper)(filter(f, mapper.items()))
+    return type(mapper)(filter_(f, mapper.items()))
 
 
 strip_none = mstrip(lambda item: not_none(item[1]))
 strip_empty = mstrip(lambda item: truth(item[1]))
+
+
+_need_checked_type = is_a((Mapping, list, tuple))
 
 
 def flat_concat(*args, **kwargs):
@@ -212,20 +215,18 @@ def flat_concat(*args, **kwargs):
     :param kwargs:
     :return:
     """
-    dicts = filter(all_([is_a_mapper, truth]), args)
-    lists = of(*filter(all_([is_simple_iter, truth]), args))
+    dicts = filter_(all_([is_a_mapper, truth]), of(args))
+    lists = of(*filter_(all_([is_simple_iter, truth]), args))
 
     merged = assign(*dicts, kwargs)
     if merged:
-        return strip_empty(map_apply(
-            lambda item: {
-                item[0]: flat_concat(item[1])
-                if is_a((Mapping, list, tuple), item[1]) else item[1]
-            },
-            merged.items()
+        return strip_empty(obj_zip(
+            merged.keys(),
+            (flat_concat(item) if _need_checked_type(item) else item for item in merged.values())
         ))
-    return of(map(lambda x: flat_concat(x)
-              if is_a((Mapping, list, tuple), x) else x, lists)) or {*filter(truth, args)}
+
+    return of(flat_concat(x) if _need_checked_type(x) else x for x in lists) \
+        or {*filter_(truth, args)}
 
 
 @curry

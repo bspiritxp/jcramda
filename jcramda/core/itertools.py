@@ -15,7 +15,6 @@ from more_itertools import (
     map_except as _met,
 )
 
-from .operator import is_a
 from ._curry import curry, flip
 from .compose import co
 
@@ -41,6 +40,8 @@ __all__ = (
     'fmap',
     'fmapof',
     'filter_',
+    'filter_of',
+    'filter_group',
     'filter_not',
     'filter_except',
     'dropwhile',
@@ -131,7 +132,7 @@ def map_(func, it):
 
 @curry
 def mapof(func, it):
-    return tuple(func(x) for x in it)
+    return of(*(func(x) for x in it))
 
 
 # maps: (fun, (iter1, iter2...iterN)) ->
@@ -184,7 +185,24 @@ def filter_(func, seqs):
     return (x for x in seqs if func(x))
 
 
+@curry
+def filter_of(f, seqs):
+    return of(x for x in seqs if f(x))
+
+
 filter_not = curry(its.filterfalse)
+
+
+@curry
+def filter_group(pred: Callable[..., bool], seqs):
+    truth = []
+    false = []
+    for x in seqs:
+        if pred(x):
+            truth.append(x)
+        else:
+            false.append(x)
+    return tuple(truth), tuple(false)
 
 
 @curry
