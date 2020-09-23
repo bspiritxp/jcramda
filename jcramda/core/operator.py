@@ -197,7 +197,7 @@ def try_catch(p: Iterable[Callable], value):
 
 @curry
 def all_(funcs: Iterable[Callable[[Any], bool]], v):
-    return all(map(lambda f: f(v), funcs))
+    return all(f(v) for f in funcs)
 
 
 @curry

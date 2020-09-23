@@ -7,7 +7,7 @@ from typing import Iterable, Union, Any, Mapping, MutableMapping, Dict, Callable
 from jcramda.base.comparison import is_a_dict, is_a_func, is_a_int, is_a_mapper, is_simple_iter
 from jcramda.base.sequence import nth
 from jcramda.core import (curry, delitem, co, first, foreach, setitem, not_a, not_none,
-                          of, all_, truth, is_a, _, when, eq, fold, mapof, filter_, filter_of)
+                          of, all_, truth, is_a, when, eq, fold, mapof, filter_, filter_of)
 
 __all__ = (
     'prop',
@@ -91,7 +91,7 @@ def items(mapper: Mapping):
 
 @curry
 def des(_keys: Iterable, mapper: Mapping):
-    return of(map(loc(_, mapper), _keys))
+    return of(loc(k, mapper) for k in _keys)
 
 
 @curry
