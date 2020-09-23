@@ -156,7 +156,7 @@ def identity(f, *args, **kw):
     return f
 
 
-def when(*cases: Iterable[Tuple[Callable, Any]], else_=None):
+def when(*cases: Tuple[Callable, Any], else_=None):
     # noinspection PyBroadException
     def cond(value):
         for f, elem in cases:

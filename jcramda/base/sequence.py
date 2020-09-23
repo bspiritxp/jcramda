@@ -9,7 +9,7 @@ __all__ = (
     'chunked', 'windowed', 'padded', 'nth_or_last', 'iterate', 'split_before',
     'split_after', 'split_at', 'split_into', 'split_when', 'distribute', 'adjacent', 'dotproduct',
     'locate', 'lstrip_f', 'rstrip_f', 'strip_f', 'take', 'tabulate', 'tail', 'consume', 'nth',
-    'all_eq', 'quantify', 'ncycles', 'find_one', 'iter_except', 'unique_set', 'grouper',
+    'all_eq', 'quantify', 'ncycles', 'find_true', 'iter_except', 'unique_set', 'grouper',
     'partition_f', 'update_range', 'drop', 'startswith', 'endswith', 'symdiff', 'zip_eq', 'diff'
 )
 
@@ -73,7 +73,7 @@ take = curry(mil.take)
 
 @curry
 def drop(n: int, seqs: Sequence):
-    return tuple(seqs[n:])
+    return type(seqs)(seqs[n:])
 
 
 tail = curry(mil.tail)
@@ -110,7 +110,7 @@ partition_f = curry(mil.partition)
 unique_set = curry(mil.unique_everseen)
 iter_except = curry(mil.iter_except)
 zip_eq = curry(mil.zip_equal)
-find_one = curry(lambda f, xs: mil.first_true(xs, None, f))
+find_true = curry(lambda f, xs: mil.first_true(xs, None, f))
 
 
 @curry

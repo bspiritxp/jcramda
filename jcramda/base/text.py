@@ -2,22 +2,20 @@ import hashlib
 import re
 from random import choices
 from typing import Iterable, AnyStr
-from jcramda.core import (curry, bind, co, chain, repeat, always, is_a)
+from jcramda.core import (curry, bind, co, chain, repeat, always)
 from jcramda.base.sequence import update_range, split_before
 from string import ascii_lowercase
 
 
 __all__ = (
-    'capitalize', 'casefold', 'center', 'encode', 'expandtabs', 'decode', 'find',
-    'format_map', 'isalnum', 'isalpha', 'isascii', 'isdecimal', 'isdigit', 'isidentifier',
-    'islower', 'isnumeric', 'isprintable', 'isspace', 'istitle', 'isupper', 'join',
-    'ljust', 'lower', 'lstrip', 'partition', 'replace', 'rfind', 'rindex', 'rjust',
-    'rpartition', 'rsplit', 'rstrip', 'scount', 'sformat', 'split', 'splitlines',
-    'strip', 'swapcase', 'title', 'translate', 'upper', 'zfill',
+    'center', 'encode', 'expandtabs', 'decode', 'find', 'join',
+    'format_map', 'ljust', 'lstrip', 'partition', 'replace', 'rfind', 'rindex', 'rjust',
+    'rpartition', 'rsplit', 'rstrip', 'strcount', 'sformat', 'split', 'strip', 'translate', 'zfill',
     # custom functions
     'first_lower', 'hex_token', 'url_safe_token', 'hex_uuid', 'camelcase', 'camelcase_to',
     'rand_txt', 'repeat_txt', 'mask', 'mask_except', 'hexdigest', 'b64_encode', 'b64_decode',
-    'b64_urlsafe_encode', 'b64_urlsafe_decode',
+    'b64_urlsafe_encode', 'b64_urlsafe_decode', 'search', 'match', 'fullmatch', 'resub', 'resubn',
+    'finditer', 'findall',
 )
 
 # string method curried ========================================
@@ -49,7 +47,7 @@ def rstrip(s: str, chars=None):
 
 
 @curry
-def scount(rs, s: str, start=None, end=None):
+def strcount(rs, s: str, start=None, end=None):
     return s.count(rs, start, end)
 
 
@@ -101,8 +99,8 @@ def translate(opts: dict, s: str):
 
 
 @curry
-def rindex(sub, s: str, start=None, end=None):
-    return s.rindex(sub, start, end)
+def rindex(subs, s: str, start=None, end=None):
+    return s.rindex(subs, start, end)
 
 
 @curry
@@ -115,29 +113,13 @@ def rsplit(sep, s: str, limit=-1):
     return s.rsplit(sep, limit)
 
 
-lower = bind('lower')
-upper = bind('upper')
-capitalize = bind('capitalize')
-casefold = bind('casefold')
-center = bind('center')
+def center(width: int, s: str, fill_char=' '):
+    return s.center(width, fill_char)
+
+
 format_map = curry(lambda mapping, s: s.format_map(mapping))
-isalnum = bind('isalnum')
-isalpha = bind('isalpha')
-isascii = bind('isascii')
-isdecimal = bind('isdecimal')
-isdigit = bind('isdigit')
-isidentifier = bind('isidentifier')
-islower = bind('islower')
-isnumeric = bind('isnumeric')
-isprintable = bind('isprintable')
-isspace = bind('isspace')
-istitle = bind('istitle')
-isupper = bind('isupper')
 partition = curry(lambda sep, s: s.partition(sep))
 rpartition = curry(lambda sep, s: s.rpartition(sep))
-splitlines = bind('splitlines')
-swapcase = bind('swapcase')
-title = bind('title')
 zfill = curry(lambda length, s: s.zfill(length))
 
 
@@ -170,18 +152,18 @@ def camelcase(s: AnyStr):
     return co(
         first_lower,
         join(''),
-        update_range(capitalize, start=1),
+        update_range(str.capitalize, start=1),
         split('_')
     )(s)
 
 
 @curry
-def camelcase_to(sep, s: AnyStr, trans_f=lower):
+def camelcase_to(sep, s: AnyStr, trans_f=str.lower):
     return co(
         trans_f,
         join(sep),
         chain(join('')),
-        split_before(isupper)
+        split_before(str.isupper)
     )(s)
 
 
@@ -190,8 +172,8 @@ def rand_txt(length, char_set=ascii_lowercase):
 
 
 @curry
-def repeat_txt(n, sub):
-    return join('', repeat(n, sub))
+def repeat_txt(n, s):
+    return join('', repeat(n, s))
 
 
 @curry
@@ -264,17 +246,8 @@ def b64_urlsafe_decode(s: AnyStr):
 search = curry(re.search)
 match = curry(re.match)
 fullmatch = curry(re.fullmatch)
-sub = curry(re.sub)
-subn = curry(re.sub)
+resub = curry(re.sub)
+resubn = curry(re.sub)
 finditer = curry(re.finditer)
 findall = curry(re.findall)
-regexp = re.compile
-template = re.template
-escape = re.escape
 
-
-# HTML ====================
-import html
-
-htmlescape = html.escape
-htmlunescape = html.unescape

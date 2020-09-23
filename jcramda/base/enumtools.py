@@ -1,7 +1,7 @@
 from enum import Enum
 
 from jcramda.core import curry, co, attr, bind, index, is_a
-from jcramda.base.sequence import find_one, nth
+from jcramda.base.sequence import find_true, nth
 from jcramda.base.comparison import attr_eq
 
 __all__ = (
@@ -27,7 +27,7 @@ members = co(
 @curry
 def valueof(v, e):
     return co(
-        find_one(attr_eq('value', v)),
+        find_true(attr_eq('value', v)),
         members,
     )(e)
 
@@ -35,7 +35,7 @@ def valueof(v, e):
 @curry
 def nameof(name, e):
     return co(
-        find_one(attr_eq('name', name)),
+        find_true(attr_eq('name', name)),
         members,
     )(e)
 

@@ -125,17 +125,19 @@ reduce_ = fold
 
 
 @curry
-def map_(func, it, *args):
-    return map(func, it, *args)
+def map_(func, it):
+    return (func(x) for x in it)
 
 
 @curry
-def mapof(func, it, *args):
-    return of(map(func, it, *args))
+def mapof(func, it):
+    return tuple(func(x) for x in it)
 
 
-# maps: (fun, seq) -> fun(*seq[0]), fun(*seq[1]), ...
-maps = curry(its.starmap)
+# maps: (fun, (iter1, iter2...iterN)) ->
+@curry
+def maps(f: Callable, it, *args):
+    return its.starmap(f, tuple((it, *args)))
 
 
 @curry
@@ -179,7 +181,7 @@ takewhile = curry(its.takewhile)
 
 @curry
 def filter_(func, seqs):
-    return filter(func, seqs)
+    return (x for x in seqs if func(x))
 
 
 filter_not = curry(its.filterfalse)
@@ -249,7 +251,7 @@ def groupby(func, iterable):
 
 @curry
 def chain(*args):
-    funcs = tuple(reverse(filter(is_a(Callable), args)))
+    funcs = tuple(reverse(f for f in args if callable(f)))
     first_func = first(funcs)
     if first_func is None:
         return flatten(*args)

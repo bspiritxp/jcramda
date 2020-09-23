@@ -1,3 +1,4 @@
+from jcramda.base import join
 from jcramda.core import repeat, co, _
 from jcramda.base.mapping import *
 

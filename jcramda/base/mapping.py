@@ -275,8 +275,14 @@ def key_tree(d, prefix=''):
 
 @curry
 def path(paths: Union[str, Iterable], mapping):
-    return fold(lambda r, x: when([is_a_mapper, loc(x)], [is_a(Iterable), nth(x)])(r),
-                mapping, paths.split('.') if isinstance(paths, str) else paths)
+    # return fold(lambda r, x: when((is_a_mapper, loc(x)), (is_a(Iterable), nth(x)))(r),
+    #             mapping, paths.split('.') if isinstance(paths, str) else paths)
+    r = mapping
+    for x in paths.split('.') if isinstance(paths, str) else paths:
+        r = when((is_a_mapper, loc(x)), (is_a(Iterable), nth(x)))(r)
+        if r is None:
+            return None
+    return r
 
 
 @curry
