@@ -115,7 +115,7 @@ find_true = curry(lambda f, xs: mil.first_true(xs, None, f))
 
 @curry
 def diff(s1: Sequence, s2: Sequence):
-    return of(filter(None, map(lambda x: x if x not in s2 else None, s1)))
+    return tuple(x for x in s1 if x not in s2)
 
 
 @curry

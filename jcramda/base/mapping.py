@@ -220,10 +220,9 @@ def flat_concat(*args, **kwargs):
 
     merged = assign(*dicts, kwargs)
     if merged:
-        return strip_empty(obj_zip(
-            merged.keys(),
-            (flat_concat(item) if _need_checked_type(item) else item for item in merged.values())
-        ))
+        return dict(
+            ((k, flat_concat(v) if _need_checked_type(v) else v) for (k, v) in merged.items() if v)
+        )
 
     return of(flat_concat(x) if _need_checked_type(x) else x for x in lists) \
         or {*filter_(truth, args)}
@@ -294,7 +293,7 @@ def path_eq(paths: Union[str, Iterable], pred, mapping):
 
 @curry
 def pluck(key, mapper: Mapping, *args):
-    return map(prop(key), mapper, *args)
+    return tuple(prop(key, d) for d in (mapper, *args))
 
 
 @curry
@@ -304,7 +303,7 @@ def keys_eq(d1, d2) -> bool:
 
 @curry
 def where(pred: Dict[Any, Callable[[Any], bool]], mapping: Mapping) -> bool:
-    return all(map(lambda k: k in mapping and pred[k](mapping[k]), pred))
+    return all(k in mapping and f(mapping[k]) for (k, f) in pred.items())
 
 
 @curry

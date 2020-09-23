@@ -18,8 +18,7 @@ def test_flat_concat():
     assert {'a': 1} == flat_concat({'a': 1, 'b': []})
     assert {'a': 1, 'b': ({'c': 3},)} == flat_concat({'a': 1}, b=[{'c': 3, 'd': None}])
     assert {'a': 1, 'b': {'c': 3}} == flat_concat(dict(a=1), b={'c': 3, 'd': ()})
-    assert {'a': 1, 'c': ({'d': 5}, {'e': 6})} == flat_concat(dict(a=1), [1, 2, 3],
-                                                              dict(c=({'d': 5}, {'e': 6})))
+    assert {'a': 1, 'c': ({'d': 5}, {'e': 6})} == flat_concat(dict(a=1), [1, 2, 3], dict(c=({'d': 5}, {'e': 6})))
     assert flat_concat(a=1, c=6) == {'a': 1, 'c': 6}
     assert flat_concat(1, [1, 2]) == (1, 2)
     assert flat_concat(1, 'a') == {1, 'a'}
@@ -101,3 +100,8 @@ def test_path():
     assert path_eq('a.1.b', 4)(dict(a=[1, {'b': 4}]))
     assert not path_eq('a.b', 1, {'a': {'c': 1}})
     assert path_eq('a.1.b', lambda x: x % 2 == 0, {'a': [1, {'b': 4}]})
+
+
+def test_pluck():
+    assert pluck('a')({'a': 1}) == (1, )
+    assert pluck('a')({'a': 1}, {'a': 2, 'b': 3}, {'b': 4, 'a': 5}) == (1, 2, 5)
