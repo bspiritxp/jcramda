@@ -213,7 +213,7 @@ def product(iter1, iter2, *args, r=1):
 
 @curry
 def product_map(func, iter1, iter2, *args):
-    return map(func, its.product(iter1, iter2, *args))
+    return (func(x) for x in its.product(iter1, iter2, *args))
 
 
 @curry

@@ -25,7 +25,7 @@ def update_args(fn, args, kws):
     new_kws = kws or {}
     new_args = []
     if isinstance(fn, partial):
-        new_args = map(lambda x: old_args.pop(0) if x is _ else x, fn.args)
+        new_args = (old_args.pop(0) if x is _ else x for x in fn.args)
         if fn.keywords:
             new_kws.update(fn.keywords)
         fn = fn.func

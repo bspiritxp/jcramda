@@ -1,7 +1,6 @@
 from more_itertools import repeatfunc, zip_equal
-from ..core import co, curry, of
-from .comparison import len_eq
 
+from jcramda.core import curry, of, map_
 
 __all__ = (
     'applyto',
@@ -32,7 +31,7 @@ def juxt(*funcs):
     :return: a list with functions call result
     """
     def juxt_w(*args, **kwargs):
-        return map(applyto(*args, **kwargs), funcs)
+        return map_(applyto(*args, **kwargs), funcs)
 
     return juxt_w
 
@@ -71,7 +70,7 @@ repeat_call = curry(repeatfunc)
 @curry
 def pair_call(funcs, v, *args):
     values = of(v, args)
-    return map(lambda pair: pair[0](pair[1]), zip_equal(funcs, values))
+    return (f(*of(x)) for (f, x) in zip_equal(funcs, values))
 
 
 @curry

@@ -1,5 +1,5 @@
 from jcramda.base import *
-from jcramda import concat, div
+from jcramda.core import concat, div, add, repeat
 
 
 def test_applyto():
@@ -22,3 +22,7 @@ def test_juxt():
 def test_converge():
     assert converge(div, [len, sum])(range(1, 8)) == 4
     assert converge(concat, [str.upper, str.lower])('Ladf') == 'LADFladf'
+
+
+def test_pair_call():
+    assert tuple(pair_call((pow, add))(repeat(2, (2, 3)))) == (8, 5)
