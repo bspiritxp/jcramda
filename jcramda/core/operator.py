@@ -11,10 +11,8 @@ __all__ = (
     'add', 'sub', 'and_', 'floordiv', 'div', 'inv', 'lshift', 'mod', 'mul', 'matmul',
     'neg', 'or_', 'pos', 'pow_', 'xor', 'concat', 'in_', 'countof', 'delitem', 'getitem',
     'index', 'setitem', 'attr', 'props', 'bind', 'eq_by', 'case', 'indexall',
-    # 'iadd', 'iand', 'iconcat', 'ifloordiv', 'ilshift', 'imod', 'imul', 'imatmul', 'ior', 'ipow',
-    # 'irshift', 'isub', 'idiv', 'ixor',
     'identity', 'when', 'always', 'if_else', 'all_', 'any_', 'default_to', 'import_',
-    'from_import_as', 'eq_attr', 'eq_prop', 'has_attr',
+    'from_import_as', 'eq_attr', 'eq_prop', 'has_attr', 'try_catch',
 )
 
 
@@ -135,7 +133,7 @@ bind = _op.methodcaller
 @curry
 def index(x, xs, start=0, end=None):
     try:
-        return _op.indexOf(islice(xs, start, end), x)
+        return _op.indexOf(tuple(islice(xs, start, end)), x)
     except ValueError:
         return None
 
@@ -187,10 +185,9 @@ def if_else(p: Tuple[Callable, Callable, Callable], value):
 
 # noinspection PyBroadException
 @curry
-def try_catch(p: Iterable[Callable], value):
-    func, failed = p
+def try_catch(f, failed, value):
     try:
-        return func(value)
+        return f(value)
     except Exception:
         return failed(value)
 
