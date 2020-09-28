@@ -28,11 +28,11 @@ def test_when():
 
 
 def test_if_else():
-    stmt = if_else((
+    stmt = if_else(
         eq(8),
         pow_(2),
         add(3)
-    ))
+    )
     assert 64 == stmt(8)
     assert 8 == stmt(5)
 
