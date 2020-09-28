@@ -11,10 +11,8 @@ __all__ = (
     'add', 'sub', 'and_', 'floordiv', 'div', 'inv', 'lshift', 'mod', 'mul', 'matmul',
     'neg', 'or_', 'pos', 'pow_', 'xor', 'concat', 'in_', 'countof', 'delitem', 'getitem',
     'index', 'setitem', 'attr', 'props', 'bind', 'eq_by', 'case', 'indexall',
-    # 'iadd', 'iand', 'iconcat', 'ifloordiv', 'ilshift', 'imod', 'imul', 'imatmul', 'ior', 'ipow',
-    # 'irshift', 'isub', 'idiv', 'ixor',
     'identity', 'when', 'always', 'if_else', 'all_', 'any_', 'default_to', 'import_',
-    'from_import_as', 'eq_attr', 'eq_prop', 'has_attr',
+    'from_import_as', 'eq_attr', 'eq_prop', 'has_attr', 'try_catch', 'else_to',
 )
 
 
@@ -135,7 +133,7 @@ bind = _op.methodcaller
 @curry
 def index(x, xs, start=0, end=None):
     try:
-        return _op.indexOf(islice(xs, start, end), x)
+        return _op.indexOf(tuple(islice(xs, start, end)), x)
     except ValueError:
         return None
 
@@ -151,7 +149,7 @@ def indexall(x, xs, start=0, end=None):
 
 @curry
 def identity(f, *args, **kw):
-    if isinstance(f, Callable):
+    if callable(f):
         return f(*args, **kw)
     return f
 
@@ -180,17 +178,15 @@ def always(x, _):
 
 
 @curry
-def if_else(p: Tuple[Callable, Callable, Callable], value):
-    pred, success, failed = p
+def if_else(pred, success, failed, value):
     return success(value) if pred(value) else failed(value)
 
 
 # noinspection PyBroadException
 @curry
-def try_catch(p: Iterable[Callable], value):
-    func, failed = p
+def try_catch(f, failed, value):
     try:
-        return func(value)
+        return f(value)
     except Exception:
         return failed(value)
 
@@ -211,6 +207,11 @@ def any_(funcs: Iterable[Callable[[Any], bool]], v):
 @curry
 def default_to(df, raw):
     return raw or df
+
+
+@curry
+def else_to(else_f, raw, args=(), kwargs={}):
+    return raw or else_f(*args, **kwargs)
 
 
 def import_(module_name, package=None):
@@ -240,6 +241,7 @@ def eq_prop(prop_name, s1, s2):
 
 
 @curry
-def has_attr(attr_name, obj):
-    return hasattr(obj, attr_name)
-
+def has_attr(attr_name, obj, pred=None):
+    if hasattr(obj, attr_name):
+        return pred(getattr(obj, attr_name)) if callable(pred) else True
+    return False

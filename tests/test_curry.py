@@ -1,4 +1,4 @@
-from jcramda.core._curry import curry, _
+from jcramda.core import curry, _, co, break_if
 
 
 @curry
@@ -44,3 +44,28 @@ def test_curry_kw():
     assert c3(_, b=3, d=4)(6) == (6, {'b': 3, 'd': 4})
     assert c3(_, b=3, d=4)(6, e=7) == (6, {'b': 3, 'd': 4, 'e': 7})
     assert c4(a=3)(c=5) == (3, 3, 5)
+
+
+def test_compose():
+    assert co(
+        lambda x: x + 2,
+        lambda x: x ** 2,
+        int, 
+    )('3') == 11
+    has_break = co(
+        lambda x: x**2,
+        break_if(lambda x: x % 2 != 0),
+        lambda x: x + 3
+    )
+    assert has_break(3) == 36
+    assert has_break(2) == 5
+    break_else = co(
+        lambda x: x - 5,
+        break_if(lambda x: x <= 5, else_=lambda x: x * 5),
+        lambda x: x / 2
+    )
+    # 10 / 2 * 5
+    assert break_else(10) == 25
+    # 20 / 2 - 5
+    assert break_else(20) == 5
+
