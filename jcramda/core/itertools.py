@@ -25,6 +25,7 @@ __all__ = (
     'one',
     'cycle',
     'count',
+    'some',
     'select',
     'fold',
     'chain',
@@ -225,6 +226,11 @@ def filter_except(pred, exceptions, iterable):
 
 
 @curry
+def some(pred, iterable) -> bool:
+    return isinstance(iterable, Iterable) and len([x for x in iterable if pred(x)]) > 0
+
+
+@curry
 def product(iter1, iter2, *args, r=1):
     return its.product(iter1, iter2, *args, repeat=r)
 
@@ -309,3 +315,4 @@ def scan(func, init, iterable):
 select = flip(its.compress)
 count = curry(its.count)
 cycle = its.cycle
+

@@ -21,7 +21,9 @@ class applyto:
         self._kw = kwargs
 
     def __call__(self, fn):
-        return fn(*self._args, **self._kw)
+        if callable(fn):
+            return fn(*self._args, **self._kw)
+        return None
 
 
 def juxt(*funcs):

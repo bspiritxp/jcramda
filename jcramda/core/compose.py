@@ -6,7 +6,12 @@ __all__ = (
     'pipe',
     'co',
     'partial',
+    'break_',
 )
+
+
+class ComposeBorker(Exception): ...
+
 
 
 def compose(*fns: Callable):
@@ -25,3 +30,9 @@ co = compose
 
 def pipe(*funcs: Callable):
     return compose(*reversed(funcs))
+
+
+def break_(pred, result):
+    if pred(result):
+        raise ComposeBorker()
+    return result

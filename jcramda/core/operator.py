@@ -12,7 +12,7 @@ __all__ = (
     'neg', 'or_', 'pos', 'pow_', 'xor', 'concat', 'in_', 'countof', 'delitem', 'getitem',
     'index', 'setitem', 'attr', 'props', 'bind', 'eq_by', 'case', 'indexall',
     'identity', 'when', 'always', 'if_else', 'all_', 'any_', 'default_to', 'import_',
-    'from_import_as', 'eq_attr', 'eq_prop', 'has_attr', 'try_catch',
+    'from_import_as', 'eq_attr', 'eq_prop', 'has_attr', 'try_catch', 'else_to',
 )
 
 
@@ -149,7 +149,7 @@ def indexall(x, xs, start=0, end=None):
 
 @curry
 def identity(f, *args, **kw):
-    if isinstance(f, Callable):
+    if callable(f):
         return f(*args, **kw)
     return f
 
@@ -178,8 +178,7 @@ def always(x, _):
 
 
 @curry
-def if_else(p: Tuple[Callable, Callable, Callable], value):
-    pred, success, failed = p
+def if_else(pred, success, failed, value):
     return success(value) if pred(value) else failed(value)
 
 
@@ -210,6 +209,11 @@ def default_to(df, raw):
     return raw or df
 
 
+@curry
+def else_to(else_f, raw, args=(), kwargs={}):
+    return raw or else_f(*args, **kwargs)
+
+
 def import_(module_name, package=None):
     from importlib import import_module
     try:
@@ -237,6 +241,7 @@ def eq_prop(prop_name, s1, s2):
 
 
 @curry
-def has_attr(attr_name, obj):
-    return hasattr(obj, attr_name)
-
+def has_attr(attr_name, obj, pred=None):
+    if hasattr(obj, attr_name):
+        return pred(getattr(obj, attr_name)) if callable(pred) else True
+    return False
