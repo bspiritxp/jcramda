@@ -27,7 +27,7 @@ __all__ = (
     'update_path',
     'key_map',
     'trans_keys',
-    'dpop',
+    'popitem',
     'sorted_by_key',
     'assign',
     'mstrip',
@@ -178,7 +178,7 @@ def trans_keys(key_fn, d, deep=False):
 
 
 @curry
-def dpop(key, d: MutableMapping):
+def popitem(key, d: MutableMapping):
     return d.pop(key)
 
 
