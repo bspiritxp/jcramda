@@ -6,7 +6,7 @@ from ._curry import curry, flip, _
 
 
 __all__ = (
-    'lt', 'le', 'eq', 'ne', 'ge', 'gt', 'not_', 'truth', 'is_', 'is_not', 'is_a', 'not_a',
+    'lt', 'le', 'eq', 'ne', 'ge', 'gt', 'not_', 'truth', 'false_', 'is_', 'is_not', 'is_a', 'not_a',
     'not_none', 'is_none', 'between', 'not_in', 'cmp_range', 'clamp', 'dec', 'inc',
     'add', 'sub', 'and_', 'floordiv', 'div', 'inv', 'lshift', 'mod', 'mul', 'matmul',
     'neg', 'or_', 'pos', 'pow_', 'xor', 'concat', 'in_', 'countof', 'delitem', 'getitem',
@@ -70,6 +70,11 @@ is_none = is_(None)
 not_none = is_not(None)
 and_ = curry(lambda a, b: a and b)
 or_ = curry(lambda a, b: a or b)
+
+
+
+def false_(a):
+    return False if a else True
 
 # Math
 
