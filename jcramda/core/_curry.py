@@ -1,7 +1,7 @@
 from abc import ABCMeta
 from inspect import signature, Parameter, getfullargspec, FullArgSpec
 from functools import wraps, partial
-from typing import Callable, List, TypeVar
+from typing import Callable, List, TypeVar, Union
 
 __all__ = (
     'EmptyParam',
@@ -9,9 +9,10 @@ __all__ = (
     'flip',
     'is_curried',
     '_',
+    'CurriedF',
 )
-
-
+_CRT = TypeVar('_CRT', covariant=True)
+CurriedF = Union[Callable[..., _CRT], _CRT]
 EmptyParam = Parameter.empty
 _ = EmptyParam
 
