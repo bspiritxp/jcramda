@@ -59,4 +59,13 @@ def test_compose():
     )
     assert has_break(3) == 36
     assert has_break(2) == 5
+    break_else = co(
+        lambda x: x - 5,
+        break_if(lambda x: x <= 5, else_=lambda x: x * 5),
+        lambda x: x / 2
+    )
+    # 10 / 2 * 5
+    assert break_else(10) == 25
+    # 20 / 2 - 5
+    assert break_else(20) == 5
 

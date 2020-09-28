@@ -11,12 +11,13 @@ __all__ = (
 
 
 class ComposeBorker:
-    def __init__(self, last_result):
+    def __init__(self, last_result, else_=None):
         self._last_result = last_result
+        self._else_f = else_
 
     @property
     def last_result(self):
-        return self._last_result
+        return self._else_f(self._last_result) if callable(self._else_f) else self._last_result
 
 
 
@@ -41,9 +42,9 @@ def pipe(*funcs: Callable):
     return compose(*reversed(funcs))
 
 
-def break_if(pred):
+def break_if(pred, else_=None):
     def borker(result):
         if pred(result):
-            return ComposeBorker(result)
+            return ComposeBorker(result, else_)
         return result
     return borker
