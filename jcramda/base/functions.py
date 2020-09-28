@@ -82,7 +82,7 @@ def use_with(after_f, funcs, v, *args):
 
 
 
-def always_call(f, args, kwargs):
+def always_call(f, *args, **kwargs):
     def _just_call(__):
         return f(*args, **kwargs)
     return wraps(f)(_just_call)
