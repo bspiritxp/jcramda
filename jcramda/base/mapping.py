@@ -47,6 +47,7 @@ __all__ = (
     'where',
     'where_eq',
     'pluck',
+    'depop',
 )
 
 not_dict = not_a(dict)
@@ -311,3 +312,8 @@ def where_eq(pred, mapping):
     if keys_eq(pred, mapping):
         return where(pred, mapping)
     return False
+
+
+@curry
+def depop(_keys, mapping):
+    return tuple(mapping.pop(key) for key in _keys if key in mapping)
