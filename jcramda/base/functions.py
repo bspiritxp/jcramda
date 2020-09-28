@@ -1,5 +1,5 @@
 from more_itertools import repeatfunc, zip_equal
-
+from functools import wraps
 from jcramda.core import curry, of, map_
 
 __all__ = (
@@ -12,6 +12,7 @@ __all__ = (
     'use_with',
     'pair_call',
     'use_with',
+    'always_call',
 )
 
 
@@ -78,3 +79,10 @@ def pair_call(funcs, v, *args):
 @curry
 def use_with(after_f, funcs, v, *args):
     return after_f(*pair_call(funcs, v, *args))
+
+
+
+def always_call(f, args, kwargs):
+    def _just_call(__):
+        return f(*args, **kwargs)
+    return wraps(f)(_just_call)
