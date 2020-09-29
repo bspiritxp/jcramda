@@ -42,12 +42,13 @@ __all__ = (
     'invert',
     'key_tree',
     'keys_eq',
-    'path',
+    'itempath',
     'path_eq',
     'where',
     'where_eq',
     'pluck',
     'depop',
+    'map_dict',
 )
 
 not_dict = not_a(dict)
@@ -63,12 +64,13 @@ def prop(prop_name: str, mapper: Mapping, default=None):
 
 @curry
 def loc(prop_name, mapper):
-    if is_a_int(prop_name):
-        prop_name = nth(prop_name)(mapper)
     if hasattr(mapper, 'loc'):
         return mapper.loc[prop_name]
+    if is_a_int(prop_name):
+        prop_name = nth(prop_name)(mapper)
     if hasattr(mapper, 'get'):
         return mapper.get(prop_name)
+    return None
 
 
 @curry
@@ -275,9 +277,7 @@ def key_tree(d, prefix=''):
 
 
 @curry
-def path(paths: Union[str, Iterable], mapping):
-    # return fold(lambda r, x: when((is_a_mapper, loc(x)), (is_a(Iterable), nth(x)))(r),
-    #             mapping, paths.split('.') if isinstance(paths, str) else paths)
+def itempath(paths: Union[str, Iterable], mapping):
     r = mapping
     for x in paths.split('.') if isinstance(paths, str) else paths:
         r = when((is_a_mapper, loc(x)), (is_a(Iterable), nth(x)))(r)
@@ -289,7 +289,7 @@ def path(paths: Union[str, Iterable], mapping):
 @curry
 def path_eq(paths: Union[str, Iterable], pred, mapping):
     check = pred if is_a_func(pred) else eq(pred)
-    return check(path(paths, mapping))
+    return check(itempath(paths, mapping))
 
 
 @curry
@@ -317,3 +317,8 @@ def where_eq(pred, mapping):
 @curry
 def depop(_keys, mapping):
     return tuple(mapping.pop(key) for key in _keys if key in mapping)
+
+
+@curry
+def map_dict(f, mapping):
+    return dict(f(k, v) for (k, v) in mapping.items())

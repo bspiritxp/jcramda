@@ -105,3 +105,15 @@ def test_path():
 def test_pluck():
     assert pluck('a')({'a': 1}) == (1, )
     assert pluck('a')({'a': 1}, {'a': 2, 'b': 3}, {'b': 4, 'a': 5}) == (1, 2, 5)
+
+
+def test_depop():
+    test_d = dict(a=1, b=2, c=3, d='d', e=5)
+    assert depop(('c', 'a'))(test_d) == (3, 1)
+    assert depop(['d', 'b'], test_d) == ('d', 2)
+    assert test_d == dict(e=5)
+
+
+def test_map_dict():
+    assert map_dict(lambda k, v: (f'{k}_', v + 1))({'a': 3, 'd': 2}) == {'a_': 4, 'd_': 3}
+

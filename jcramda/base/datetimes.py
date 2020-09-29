@@ -12,8 +12,8 @@ __all__ = (
     'locnow',
     'localize',
     'now',
-    'std_fmt_d',
-    'std_fmt_dt',
+    'fmt_std_date',
+    'fmt_std_datetime',
     'timestamp',
     'timestamp_ms',
     'to_datetime',
@@ -72,8 +72,8 @@ def format_dt(p: str, d: AnyDateTime):
     return d.strftime(p) if d else ''
 
 
-std_fmt_d = format_dt('%Y-%m-%d')
-std_fmt_dt = format_dt('%Y-%m-%d %H:%M:%S')
+fmt_std_date = format_dt('%Y-%m-%d')
+fmt_std_datetime = format_dt('%Y-%m-%d %H:%M:%S')
 
 
 class FreqName(IntEnum):

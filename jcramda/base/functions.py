@@ -6,7 +6,7 @@ __all__ = (
     'applyto',
     'converge',
     'juxt',
-    'call_until',
+    'until',
     'f_digest',
     'repeat_call',
     'use_with',
@@ -40,7 +40,7 @@ def juxt(*funcs):
 
 
 @curry
-def call_until(pred, funcs, v, *args, **kwargs):
+def until(pred, funcs, v, *args, **kwargs):
     for func in funcs:
         r = func(v, *args, **kwargs)
         if pred(r):
@@ -86,3 +86,10 @@ def always_call(f, *args, **kwargs):
     def _just_call(__):
         return f(*args, **kwargs)
     return wraps(f)(_just_call)
+
+
+@curry
+def tap(f, v):
+    f(v)
+    return v
+

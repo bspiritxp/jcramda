@@ -228,9 +228,13 @@ def import_(module_name, package=None):
 
 
 @curry
-def from_import_as(_name, from_module, package=None):
-    super_module = import_(from_module, package)
-    return getattr(super_module, _name, None)
+def from_import_as(_name: str, package=None):
+    if package:
+        name, module_name = (_name, package)
+    else:
+        name, module_name = _name.rsplit('.', 1)
+    super_module = import_(module_name)
+    return getattr(super_module, name, None)
 
 
 @curry

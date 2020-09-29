@@ -15,7 +15,7 @@ __all__ = (
     'first_lower', 'hex_token', 'url_safe_token', 'hex_uuid', 'camelcase', 'camelcase_to',
     'rand_txt', 'repeat_txt', 'mask', 'mask_except', 'hexdigest', 'b64_encode', 'b64_decode',
     'b64_urlsafe_encode', 'b64_urlsafe_decode', 'search', 'match', 'fullmatch', 'resub', 'resubn',
-    'finditer', 'findall',
+    'finditer', 'findall', 'url_join',
 )
 
 # string method curried ========================================
@@ -251,3 +251,6 @@ resubn = curry(re.sub)
 finditer = curry(re.finditer)
 findall = curry(re.findall)
 
+def url_join(*args):
+    first_char = '/' if args[0][0] == '/' else ''
+    return first_char + join('/', map(lambda s: s.strip('/'), args))
