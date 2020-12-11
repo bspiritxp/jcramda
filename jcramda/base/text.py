@@ -2,7 +2,7 @@ import hashlib
 import re
 from random import choices
 from typing import Iterable, AnyStr
-from jcramda.core import (curry, bind, co, chain, repeat, always)
+from jcramda.core import (curry, bind, co, chain, identity, repeat, always, if_else, is_a)
 from jcramda.base.sequence import update_range, split_before
 from string import ascii_lowercase
 
@@ -161,7 +161,7 @@ def camelcase(s: AnyStr):
 def camelcase_to(sep, s: AnyStr, trans_f=str.lower):
     return co(
         trans_f,
-        join(sep),
+        if_else(is_a((str, bytes)), identity, join(sep)),
         chain(join('')),
         split_before(str.isupper)
     )(s)

@@ -1,16 +1,16 @@
 from setuptools import setup, find_packages
 
 
-readme = open('Readme.md', 'r').read()
+# readme = open('Readme.md', 'r').read()
 
 
 setup(
     name='jcramda',
-    version='1.0.2',
+    version='1.0.4',
     author='Jochen He',
     author_email='thjl@hotmail.com',
     description='functional programming methods',
-    long_description=readme,
+    long_description='',
     long_description_content_type='text/markdown',
     packages=find_packages(),
     classifiers=[
