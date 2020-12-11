@@ -1,6 +1,6 @@
 import itertools as its
 from functools import reduce as _reduce
-from typing import Iterable, Callable, Tuple
+from typing import Iterable, Callable, Mapping, Tuple
 
 from more_itertools import (
     with_iter,
@@ -65,7 +65,7 @@ __all__ = (
 
 @curry
 def aof(*args):
-    return *args,
+    return tuple(*args,)
 
 
 # noinspection PyArgumentList
@@ -77,9 +77,13 @@ def of(*args, cls=tuple):
     :param args: Iterable
     :return: cls指定的迭代类型
     """
-    return cls(
-        its.chain(*[x if isinstance(x, Iterable) else [x] for x in args])
-    )
+    data = []
+    for x in args:
+        if isinstance(x, Iterable) and not isinstance(x, Mapping):
+            data += list(x)
+        else:
+            data.append(x)
+    return cls(data)
 
 
 @curry

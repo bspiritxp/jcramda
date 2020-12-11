@@ -11,7 +11,7 @@ __all__ = (
     'add', 'sub', 'and_', 'floordiv', 'div', 'inv', 'lshift', 'mod', 'mul', 'matmul',
     'neg', 'or_', 'pos', 'pow_', 'xor', 'concat', 'in_', 'countof', 'delitem', 'getitem',
     'index', 'setitem', 'attr', 'props', 'bind', 'eq_by', 'case', 'indexall',
-    'identity', 'when', 'always', 'if_else', 'all_', 'any_', 'default_to', 'import_',
+    'identity', 'when', 'always', 'if_else', 'all_', 'any_', 'all_pass', 'one_pass', 'default_to', 'import_',
     'from_import_as', 'eq_attr', 'eq_prop', 'has_attr', 'try_catch', 'else_to',
 )
 
@@ -199,6 +199,22 @@ def try_catch(f, failed, value):
 @curry
 def all_(funcs: Iterable[Callable[[Any], bool]], v):
     return all(f(v) for f in funcs)
+
+
+@curry
+def one_pass(func, iterable) -> bool:
+    for x in iterable:
+        if func(x):
+            return True
+    return False
+
+
+@curry
+def all_pass(func, iterable) -> bool:
+    for x in iterable:
+        if not func(x):
+            return False
+    return True
 
 
 @curry
