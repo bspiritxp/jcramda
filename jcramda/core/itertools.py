@@ -65,7 +65,7 @@ __all__ = (
 
 @curry
 def aof(*args):
-    return tuple(*args,)
+    return (*args,)
 
 
 # noinspection PyArgumentList
@@ -91,7 +91,7 @@ def flatten(*args):
     if len(args) == 1 and not isinstance(args[0], Iterable):
         return args[0]
     from more_itertools import collapse
-    return *collapse(args),
+    return of(collapse(args))
 
 
 def one(iterable):
@@ -137,7 +137,7 @@ def map_(func, it):
 
 @curry
 def mapof(func, it):
-    return of(*(func(x) for x in it))
+    return (*(func(x) for x in it),)
 
 
 # maps: (fun, (iter1, iter2...iterN)) ->

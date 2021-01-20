@@ -2,7 +2,7 @@ import hashlib
 import re
 from random import choices
 from typing import Iterable, AnyStr
-from jcramda.core import (curry, bind, co, chain, identity, repeat, always, if_else, is_a)
+from jcramda.core import (curry, bind, co, map_, identity, repeat, always, if_else, is_a)
 from jcramda.base.sequence import update_range, split_before
 from string import ascii_lowercase
 
@@ -143,17 +143,19 @@ def hex_uuid():
     return uuid4().hex
 
 
-def camelcase(s: AnyStr):
+@curry
+def camelcase(s: AnyStr, sep='_'):
     """
-    下划线转换驼峰
+    指定分隔符转换驼峰
     :param s:
+    :param sep: str default is '_'
     :return:
     """
     return co(
         first_lower,
         join(''),
         update_range(str.capitalize, start=1),
-        split('_')
+        split(sep)
     )(s)
 
 
@@ -162,7 +164,7 @@ def camelcase_to(sep, s: AnyStr, trans_f=str.lower):
     return co(
         trans_f,
         if_else(is_a((str, bytes)), identity, join(sep)),
-        chain(join('')),
+        map_(join('')),
         split_before(str.isupper)
     )(s)
 

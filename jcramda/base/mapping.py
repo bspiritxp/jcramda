@@ -2,11 +2,12 @@
 Ramda mapping functions
 """
 from collections import OrderedDict
+from jcramda.core.itertools import flatten
 from typing import Iterable, Union, Any, Mapping, MutableMapping, Dict, Callable
 
 from jcramda.base.comparison import is_a_dict, is_a_func, is_a_int, is_a_mapper, is_simple_iter
 from jcramda.base.sequence import nth
-from jcramda.core import (curry, delitem, co, first, foreach, setitem, not_a, not_none,
+from jcramda.core import (curry, delitem, co, first, foreach, setitem, not_a, not_none, maps,
                           of, all_, truth, is_a, when, eq, fold, mapof, filter_, filter_of)
 
 __all__ = (
@@ -194,7 +195,7 @@ def assign(*args):
     mappers = filter_of(is_a_dict, args)
     if not mappers:
         return {}
-    return dict(zip(mapof(keys, mappers), mapof(values, mappers)))
+    return dict(zip(of(*map(keys, mappers)), of(*map(values, mappers))))
 
 
 @curry

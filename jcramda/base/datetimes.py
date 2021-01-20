@@ -56,15 +56,11 @@ def fromtimestamp(tmp):
 
 def to_datetime(raw):
     from dateutil.parser import parse
-    if is_a((str, bytes), raw) and raw.isdigit():
-        raw = int(raw)
-    try:
-        return when([
-            (is_a((str, bytes)), parse),
-            (is_a((int, float)), fromtimestamp),
-        ], None)(raw)
-    except (ValueError, TypeError):
-        return None
+    return when(
+        (is_a((str, bytes)), parse),
+        (is_a((int, float)), fromtimestamp),
+    )(raw)
+
 
 
 @curry

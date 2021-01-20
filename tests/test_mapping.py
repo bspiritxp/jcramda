@@ -91,11 +91,11 @@ def test_key_tree():
 
 
 def test_path():
-    assert path('a', {'a': 1}) == 1
-    assert path('a')({'b': 3}) is None
-    assert path('a.b')({'a': {'b': 3}}) == 3
-    assert path(('a', 1, 'b'))({'a': [1, {'b': 4}]}) == 4
-    assert path('a.1.b')({'a': [1, {'b': 4}]}) == 4
+    assert itempath('a', {'a': 1}) == 1
+    assert itempath('a')({'b': 3}) is None
+    assert itempath('a.b')({'a': {'b': 3}}) == 3
+    assert itempath(('a', 1, 'b'))({'a': [1, {'b': 4}]}) == 4
+    assert itempath('a.1.b')({'a': [1, {'b': 4}]}) == 4
 
     assert path_eq('a.1.b', 4)(dict(a=[1, {'b': 4}]))
     assert not path_eq('a.b', 1, {'a': {'c': 1}})
