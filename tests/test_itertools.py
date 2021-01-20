@@ -67,3 +67,7 @@ def test_first():
 
 def test_select():
     assert of(select([1, 0, 1, 1, 0])(range(1, 6))) == (1, 3, 4)
+
+
+def test_chunk():
+    assert (sum(range(20)), sum(range(20, 40)), sum(range(40, 60))) == chunk_map(sum, 20, range(60))

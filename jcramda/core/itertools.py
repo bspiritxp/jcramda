@@ -60,6 +60,7 @@ __all__ = (
     'map_reduce',
     'scan',
     'groupby',
+    'chunk_map'
 )
 
 
@@ -143,7 +144,7 @@ def mapof(func, it):
 # maps: (fun, (iter1, iter2...iterN)) ->
 @curry
 def maps(f: Callable, it, *args):
-    return its.starmap(f, tuple((it, *args)))
+    return its.starmap(f, (it, *args))
 
 
 @curry
@@ -319,4 +320,17 @@ def scan(func, init, iterable):
 select = flip(its.compress)
 count = curry(its.count)
 cycle = its.cycle
+
+
+@curry
+def chunk_map(func, size, it):
+    idx = 0
+    block = it[idx:size]
+    result = []
+    while block:
+        result.append(func(block))
+        idx += size
+        block = it[idx:size+idx]
+    return of(*result)
+
 

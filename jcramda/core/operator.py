@@ -117,23 +117,6 @@ attr = _op.attrgetter
 props = _op.itemgetter
 bind = _op.methodcaller
 
-
-# iadd = flip(_op.iadd)
-# iand = flip(_op.iand)
-# iconcat = flip(_op.iconcat)
-# ifloordiv = flip(_op.ifloordiv)
-# ilshift = flip(_op.ilshift)
-# imod = flip(_op.imod)
-# imul = flip(_op.imul)
-# imatmul = flip(_op.imatmul)
-# ior = flip(_op.ior)
-# ipow = flip(_op.ipow)
-# irshift = flip(_op.irshift)
-# isub = flip(_op.isub)
-# idiv = flip(_op.itruediv)
-# ixor = flip(_op.ixor)
-
-
 # customs ==============================
 @curry
 def index(x, xs, start=0, end=None):
