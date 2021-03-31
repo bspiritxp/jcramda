@@ -1,5 +1,6 @@
-from functools import reduce, partial
 from typing import Callable
+from functools import partial
+
 
 __all__ = (
     'compose',
@@ -25,10 +26,10 @@ def compose(*fns: Callable):
     assert len(fns) > 1, 'compose must have less two functions.'
     def composed_func(*args, **kwargs):
         f, *funcs = reversed(fns)
-        result = f(*args, **kwargs)        
-        for func in funcs:       
+        result = f(*args, **kwargs)
+        for func in funcs:
             if isinstance(result, ComposeBorker):
-               return result.last_result
+                return result.last_result
             result = func(result)            
         return result
 

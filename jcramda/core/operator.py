@@ -2,7 +2,8 @@ import operator as _op
 from functools import reduce
 from typing import Tuple, Callable, Any, Iterable
 from itertools import islice
-from ._curry import curry, flip, _
+from importlib import import_module
+from ._curry import curry, flip
 
 
 __all__ = (
@@ -11,8 +12,8 @@ __all__ = (
     'add', 'sub', 'and_', 'floordiv', 'div', 'inv', 'lshift', 'mod', 'mul', 'matmul',
     'neg', 'or_', 'pos', 'pow_', 'xor', 'concat', 'in_', 'countof', 'delitem', 'getitem',
     'index', 'setitem', 'attr', 'props', 'bind', 'eq_by', 'case', 'indexall',
-    'identity', 'when', 'always', 'if_else', 'all_', 'any_', 'all_pass', 'one_pass', 'default_to', 'import_',
-    'from_import_as', 'eq_attr', 'eq_prop', 'has_attr', 'try_catch', 'else_to',
+    'identity', 'when', 'always', 'if_else', 'all_', 'any_', 'all_pass', 'one_pass', 'default_to',
+    'import_', 'from_import_as', 'eq_attr', 'eq_prop', 'has_attr', 'try_catch', 'else_to',
 )
 
 
@@ -74,7 +75,7 @@ or_ = curry(lambda a, b: a or b)
 
 
 def false_(a):
-    return False if a else True
+    return bool(a)
 
 # Math
 
@@ -111,7 +112,7 @@ not_in = curry(lambda a, b: b not in a)
 countof = flip(_op.countOf)
 delitem = flip(_op.delitem)
 getitem = flip(_op.getitem)
-setitem = curry(lambda d, key, value: _op.setitem(d, key, value))
+setitem = curry(_op.setitem)
 
 attr = _op.attrgetter
 props = _op.itemgetter
@@ -149,7 +150,7 @@ def when(*cases: Tuple[Callable, Any], else_=None):
             try:
                 if f(value):
                     return identity(elem, value)
-            except Exception:
+            except RuntimeError:
                 continue
         return identity(else_, value)
     return cond
@@ -175,7 +176,7 @@ def if_else(pred, success, failed, value):
 def try_catch(f, failed, value):
     try:
         return f(value)
-    except Exception:
+    except RuntimeError:
         return failed(value)
 
 
@@ -214,12 +215,11 @@ def default_to(df, raw):
 
 
 @curry
-def else_to(else_f, raw, args=(), kwargs={}):
+def else_to(else_f, raw, *args, **kwargs):
     return raw or else_f(*args, **kwargs)
 
 
 def import_(module_name, package=None):
-    from importlib import import_module
     try:
         return import_module(module_name, package)
     except TypeError:

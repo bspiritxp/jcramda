@@ -1,7 +1,7 @@
-from abc import ABCMeta
-from inspect import signature, Parameter, getfullargspec, FullArgSpec
+from inspect import Parameter, getfullargspec, FullArgSpec
 from functools import wraps, partial
-from typing import Callable, List, TypeVar, Union
+from typing import Callable, TypeVar, Union
+
 
 __all__ = (
     'EmptyParam',
@@ -50,8 +50,7 @@ def make_curry(fn, spec):
         updated_fn = update_args(fn, args, kwargs)
         if is_filled(updated_fn, spec):
             return updated_fn()
-        else:
-            return wraps(fn)(make_curry(updated_fn, spec))
+        return wraps(fn)(make_curry(updated_fn, spec))
     curried.__curried__ = True
     return curried
 

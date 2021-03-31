@@ -1,3 +1,4 @@
+from collections import deque
 import itertools as its
 from functools import reduce as _reduce
 from typing import Iterable, Callable, Mapping, Tuple
@@ -13,6 +14,7 @@ from more_itertools import (
     one as _one,
     filter_except as _fet,
     map_except as _met,
+    map_reduce as map_reduce_,
 )
 
 from ._curry import curry, flip
@@ -112,7 +114,6 @@ def last(iterable):
     try:
         return iterable[-1]
     except (TypeError, AttributeError, KeyError):
-        from collections import deque
         return deque(iterable, maxlen=1)[0]
 
 
@@ -275,7 +276,7 @@ def zip_(fill_value, seq, *seqs):
 
 @curry
 def groupby(func, iterable):
-    return its.groupby(iterable, func),
+    return its.groupby(iterable, func)
 
 
 @curry
@@ -303,8 +304,7 @@ def ireplace(pred, sub, iterable, _count=None, window_size=1):
 
 @curry
 def map_reduce(key: Callable, iterable: Iterable, emit=None, reducer=None):
-    from more_itertools import map_reduce
-    return map_reduce(iterable, key, emit, reducer)
+    return map_reduce_(iterable, key, emit, reducer)
 
 
 @curry
@@ -332,5 +332,3 @@ def chunk_map(func, size, it):
         idx += size
         block = it[idx:size+idx]
     return of(*result)
-
-

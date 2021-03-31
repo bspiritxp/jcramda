@@ -26,10 +26,8 @@ class Maybe(Generic[_TV], ABC):
         empty_f = prop('empty_func', kwargs, default=is_none)
         if is_a(Nothing, v) or empty_f(v):
             return super(Maybe, cls).__new__(Nothing)
-        if cls is Maybe:
-            cls = Just
-        return super(Maybe, cls).__new__(cls, *args, **kwargs)
-        
+        clazz = Just if cls is Maybe else cls
+        return super(Maybe, clazz).__new__(clazz, *args, **kwargs)
 
     @abstractmethod
     def get(self) -> _TV: ...
@@ -77,7 +75,7 @@ class Nothing(Maybe):
 
     def flatmap(self, func):
         return self
-    
+
     def __repr__(self):
         return 'Maybe::Nothing'
 
