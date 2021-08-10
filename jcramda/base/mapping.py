@@ -50,6 +50,7 @@ __all__ = (
     'pluck',
     'depop',
     'map_dict',
+    'prop_any',
 )
 
 not_dict = not_a(dict)
@@ -323,3 +324,12 @@ def depop(_keys, mapping):
 @curry
 def map_dict(f, mapping):
     return dict(f(k, v) for (k, v) in mapping.items())
+
+
+@curry
+def prop_any(_keys: Iterable, mapping: Mapping, default=None):
+    for k in _keys:
+        r = prop(k, mapping)
+        if r is not None:
+            return r
+    return default

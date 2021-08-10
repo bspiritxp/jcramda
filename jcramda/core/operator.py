@@ -9,7 +9,7 @@ from ._curry import curry, flip
 __all__ = (
     'lt', 'le', 'eq', 'ne', 'ge', 'gt', 'not_', 'truth', 'false_', 'is_', 'is_not', 'is_a', 'not_a',
     'not_none', 'is_none', 'between', 'not_in', 'cmp_range', 'clamp', 'dec', 'inc',
-    'add', 'sub', 'and_', 'floordiv', 'div', 'inv', 'lshift', 'mod', 'mul', 'matmul',
+    'add', 'sub', 'and_', 'floordiv', 'div', 'inv', 'lshift', 'mod', 'mul', 'matmul', 'round_down',
     'neg', 'or_', 'pos', 'pow_', 'xor', 'concat', 'in_', 'countof', 'delitem', 'getitem',
     'index', 'setitem', 'attr', 'props', 'bind', 'eq_by', 'case', 'indexall',
     'identity', 'when', 'always', 'if_else', 'all_', 'any_', 'all_pass', 'one_pass', 'default_to',
@@ -46,9 +46,9 @@ def between(_min, _max, v):
     :param _min:
     :param _max:
     :param v:
-    :return:
+    :return: boolean
     """
-    return cmp_range(range(_min, _max), v) == 0
+    return _min <= v < _max
 
 
 @curry
@@ -118,6 +118,16 @@ attr = _op.attrgetter
 props = _op.itemgetter
 bind = _op.methodcaller
 
+
+@curry
+def round_down(limit, num):
+    str_num = str(num)
+    if '.' not in str_num:
+        return num
+    *oct_n, ft_n = str(num).partition('.')
+    return float(''.join([*oct_n, ft_n[0:limit]]))
+
+
 # customs ==============================
 @curry
 def index(x, xs, start=0, end=None):
@@ -157,8 +167,9 @@ def when(*cases: Tuple[Callable, Any], else_=None):
 
 
 @curry
-def case(cases: dict, v, default=None):
-    return identity(cases.get(v), v) or default
+def case(cases: dict, v, default=None, key=None):
+    case_v = key(v) if callable(key) else v
+    return identity(cases.get(case_v) or default
 
 
 @curry
@@ -172,10 +183,10 @@ def if_else(pred, success, failed, value):
 
 
 # noinspection PyBroadException
-@curry
-def try_catch(f, failed, value):
-    try:
-        return f(value)
+  retu
+n f(value)
+   
+       
     except RuntimeError:
         return failed(value)
 
