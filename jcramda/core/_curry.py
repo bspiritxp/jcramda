@@ -13,7 +13,7 @@ __all__ = (
 )
 _CRT = TypeVar('_CRT', covariant=True)
 CurriedF = Union[Callable[..., _CRT], _CRT]
-EmptyParam = Parameter.empty
+EmptyParam = Parameter.empty()
 _ = EmptyParam
 
 
@@ -35,7 +35,7 @@ def update_args(fn, args, kws):
 
 
 def is_filled(fn: partial, spec):
-    return _ not in fn.args and \
+    return not any(filter(lambda x: isinstance(x, Parameter.empty), fn.args)) and \
         len(spec.args or ()) <= len(fn.args) + len(spec.defaults or ()) and \
         {*spec.kwonlyargs} <= {*fn.keywords, *(spec.kwonlydefaults or ())}
 

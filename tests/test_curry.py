@@ -68,4 +68,3 @@ def test_compose():
     assert break_else(10) == 25
     # 20 / 2 - 5
     assert break_else(20) == 5
-
