@@ -13,8 +13,7 @@ __all__ = (
 )
 _CRT = TypeVar('_CRT', covariant=True)
 CurriedF = Union[Callable[..., _CRT], _CRT]
-EmptyParam = Parameter.empty()
-_ = EmptyParam
+_ = EmptyParam = Parameter.empty()
 
 
 def _count_args(spec: FullArgSpec):

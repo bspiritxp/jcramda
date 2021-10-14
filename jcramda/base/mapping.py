@@ -2,13 +2,14 @@
 Ramda mapping functions
 """
 from collections import OrderedDict
-from jcramda.core.itertools import flatten
 from typing import Iterable, Union, Any, Mapping, MutableMapping, Dict, Callable
 
 from jcramda.base.comparison import is_a_dict, is_a_func, is_a_int, is_a_mapper, is_simple_iter
 from jcramda.base.sequence import nth
-from jcramda.core import (curry, delitem, co, first, foreach, setitem, not_a, not_none, maps,
-                          of, all_, truth, is_a, when, eq, fold, mapof, filter_, filter_of)
+from jcramda.core import (
+    curry, delitem, co, first, foreach, setitem, not_a, not_none, of, all_, truth, is_a, when, eq, 
+    fold, filter_, filter_of)
+
 
 __all__ = (
     'prop',
@@ -233,6 +234,7 @@ def flat_concat(*args, **kwargs):
         or {*filter_(truth, args)}
 
 
+
 @curry
 def orderby(key_f, d: dict, reverse=False):
     """
@@ -327,9 +329,17 @@ def map_dict(f, mapping):
 
 
 @curry
-def prop_any(_keys: Iterable, mapping: Mapping, default=None):
+def prop_any(_keys: Iterable, mapping: Mapping, default=None, keyfunc=None):
+    '''get value from mapping until `keyfunc(value)` is True
+    @param _keys: a list of keys
+    @param mapping： a mapping
+    @param default: default value when not found any value
+    @param keyfunc: a key function used to check value, default is bool
+    '''
+    if not callable(keyfunc):
+        keyfunc = bool
     for k in _keys:
-        r = prop(k, mapping)
-        if r is not None:
+        r = mapping.get(k)
+        if keyfunc(r):
             return r
     return default
