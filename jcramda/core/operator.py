@@ -169,7 +169,7 @@ def when(*cases: Tuple[Callable, Any], else_=None):
 @curry
 def case(cases: dict, v, default=None, key=None):
     case_v = key(v) if callable(key) else v
-    return identity(cases.get(case_v)) or default
+    return identity(cases.get(case_v, default))
 
 
 @curry

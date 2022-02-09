@@ -30,7 +30,7 @@ def compose(*fns: Callable):
         for func in funcs:
             if isinstance(result, ComposeBorker):
                 return result.last_result
-            result = func(result)            
+            result = func(result)
         return result
 
     return composed_func

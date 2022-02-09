@@ -1,9 +1,10 @@
 from collections import deque
+from collections.abc import Iterable, Mapping
 import itertools as its
 from functools import reduce as _reduce
-from typing import Iterable, Callable, Mapping, Tuple
-
+from typing import Callable, Tuple
 from more_itertools import (
+    collapse,
     with_iter,
     intersperse as _intersperse,
     consume,
@@ -93,7 +94,6 @@ def of(*args, cls=tuple):
 def flatten(*args):
     if len(args) == 1 and not isinstance(args[0], Iterable):
         return args[0]
-    from more_itertools import collapse
     return of(collapse(args))
 
 
@@ -286,7 +286,8 @@ def chain(*args):
     if first_func is None:
         return flatten(*args)
     return co(one, flatten,
-              map_(lambda x: fold(lambda r, f: f(r, x), first_func(x), funcs[1:])),
+              map_(lambda x: fold(lambda r, f: f(
+                  r, x), first_func(x), funcs[1:])),
               aof,
               )
 
